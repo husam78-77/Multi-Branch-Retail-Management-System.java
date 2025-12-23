@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.ChartController">
+
+    <top>
+        <Label text="Sales Per Branch Chart"
+               style="-fx-font-size: 18px; -fx-font-weight: bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <StackPane fx:id="chartContainer"/>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" padding="10">
+            <Button text="Back" onAction="#handleBack"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

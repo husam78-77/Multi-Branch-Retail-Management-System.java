@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.ReportController">
+
+    <top>
+        <Label text="Sales Per Branch Report"
+               style="-fx-font-size: 18px;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <TableView fx:id="branchReportTable">
+            <columns>
+                <TableColumn fx:id="colBranch" text="Branch"/>
+                <TableColumn fx:id="colTotal" text="Total Sales"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <Button text="Back" onAction="#handleBack"/>
+    </bottom>
+
+</BorderPane>

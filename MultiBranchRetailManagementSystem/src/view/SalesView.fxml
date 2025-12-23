@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.SalesController">
+
+    <top>
+        <Label text="Sales"
+               style="-fx-font-size: 18px; -fx-font-weight: bold;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+
+    <center>
+        <HBox spacing="20" padding="15">
+
+            <VBox spacing="10">
+                <Label text="Select Product"/>
+
+                <ComboBox fx:id="productComboBox" promptText="Product"/>
+
+                <TextField fx:id="quantityField" promptText="Quantity"/>
+
+                <Button text="Add to Cart" onAction="#handleAddToCart"/>
+            </VBox>
+
+            <VBox spacing="10">
+                <Label text="Cart"/>
+
+                <TableView fx:id="cartTable">
+                    <columns>
+                        <TableColumn fx:id="colName" text="Product"/>
+                        <TableColumn fx:id="colQty" text="Qty"/>
+                        <TableColumn fx:id="colPrice" text="Price"/>
+                        <TableColumn fx:id="colSubtotal" text="Subtotal"/>
+                    </columns>
+                </TableView>
+
+                <Label fx:id="totalLabel"
+                       text="Total: 0.00"
+                       style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+                <Button text="Confirm Sale" onAction="#handleConfirmSale"/>
+                <Button text="Back" onAction="#handleBack"/>
+            </VBox>
+
+        </HBox>
+    </center>
+
+</BorderPane>
