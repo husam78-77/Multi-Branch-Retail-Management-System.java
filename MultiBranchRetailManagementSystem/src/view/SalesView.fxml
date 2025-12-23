@@ -6,51 +6,252 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controller.SalesController">
+            fx:controller="controller.SalesController"
+            style="-fx-background-color: #f5f5f5;">
 
     <top>
-        <Label text="Sales"
-               style="-fx-font-size: 18px; -fx-font-weight: bold;"
-               BorderPane.alignment="CENTER"/>
+        <VBox style="-fx-background-color: white; 
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
+            <padding>
+                <Insets top="25" right="30" bottom="25" left="30"/>
+            </padding>
+            
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label text="💰" style="-fx-font-size: 28px;"/>
+                <VBox spacing="3">
+                    <Label text="Sales &amp; Checkout"
+                           style="-fx-font-size: 20px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                    <Label text="Process customer transactions and manage cart"
+                           style="-fx-font-size: 13px; 
+                                  -fx-text-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+        </VBox>
     </top>
 
     <center>
-        <HBox spacing="20">
+        <HBox spacing="20" alignment="TOP_CENTER">
             <padding>
-                <Insets top="15" right="15" bottom="15" left="15"/>
+                <Insets top="20" right="20" bottom="20" left="20"/>
             </padding>
 
-            <VBox spacing="10">
-                <Label text="Select Product"/>
+            <!-- Left Panel - Product Selection -->
+            <VBox spacing="15"
+                  style="-fx-background-color: white; 
+                         -fx-background-radius: 10;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                  prefWidth="350">
+                <padding>
+                    <Insets top="25" right="25" bottom="25" left="25"/>
+                </padding>
+                
+                <!-- Section Title -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🛍️" style="-fx-font-size: 20px;"/>
+                    <Label text="Select Products"
+                           style="-fx-font-size: 16px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                </HBox>
+                
+                <Separator/>
 
-                <ComboBox fx:id="productComboBox" promptText="Product"/>
+                <!-- Product Selection -->
+                <VBox spacing="8">
+                    <Label text="Product" 
+                           style="-fx-font-size: 12px; 
+                                  -fx-font-weight: 600; 
+                                  -fx-text-fill: #34495e;"/>
+                    <ComboBox fx:id="productComboBox" 
+                              promptText="Choose a product..."
+                              prefWidth="300"
+                              style="-fx-background-color: #f8f9fa; 
+                                     -fx-background-radius: 5; 
+                                     -fx-border-color: #e0e0e0; 
+                                     -fx-border-radius: 5;
+                                     -fx-font-size: 13px;"/>
+                </VBox>
 
-                <TextField fx:id="quantityField" promptText="Quantity"/>
+                <!-- Quantity Input -->
+                <VBox spacing="8">
+                    <Label text="Quantity" 
+                           style="-fx-font-size: 12px; 
+                                  -fx-font-weight: 600; 
+                                  -fx-text-fill: #34495e;"/>
+                    <TextField fx:id="quantityField" 
+                               promptText="Enter quantity"
+                               prefWidth="300"
+                               style="-fx-background-color: #f8f9fa; 
+                                      -fx-background-radius: 5; 
+                                      -fx-border-color: #e0e0e0; 
+                                      -fx-border-radius: 5; 
+                                      -fx-padding: 10;
+                                      -fx-font-size: 13px;
+                                      -fx-prompt-text-fill: #95a5a6;"/>
+                </VBox>
 
-                <Button text="Add to Cart" onAction="#handleAddToCart"/>
+                <!-- Add to Cart Button -->
+                <Button text="➕ Add to Cart" 
+                        onAction="#handleAddToCart"
+                        prefWidth="300"
+                        style="-fx-background-color: #3498db; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 14px; 
+                               -fx-font-weight: bold; 
+                               -fx-background-radius: 5; 
+                               -fx-padding: 12;
+                               -fx-cursor: hand;">
+                    <VBox.margin>
+                        <Insets top="10"/>
+                    </VBox.margin>
+                </Button>
+
+                <!-- Product Info Card -->
+                <VBox spacing="5"
+                      style="-fx-background-color: #e8f5e9; 
+                             -fx-background-radius: 5; 
+                             -fx-padding: 12;">
+                    <VBox.margin>
+                        <Insets top="10"/>
+                    </VBox.margin>
+                    <Label text="ℹ️ Quick Tips"
+                           style="-fx-font-size: 11px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2e7d32;"/>
+                    <Label text="• Select product from dropdown"
+                           style="-fx-font-size: 10px; 
+                                  -fx-text-fill: #2e7d32;"
+                           wrapText="true"/>
+                    <Label text="• Enter desired quantity"
+                           style="-fx-font-size: 10px; 
+                                  -fx-text-fill: #2e7d32;"
+                           wrapText="true"/>
+                    <Label text="• Click 'Add to Cart' to continue"
+                           style="-fx-font-size: 10px; 
+                                  -fx-text-fill: #2e7d32;"
+                           wrapText="true"/>
+                </VBox>
             </VBox>
 
-            <VBox spacing="10">
-                <Label text="Cart"/>
+            <!-- Right Panel - Shopping Cart -->
+            <VBox spacing="15"
+                  style="-fx-background-color: white; 
+                         -fx-background-radius: 10;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                  prefWidth="500"
+                  HBox.hgrow="ALWAYS">
+                <padding>
+                    <Insets top="25" right="25" bottom="25" left="25"/>
+                </padding>
+                
+                <!-- Section Title -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🛒" style="-fx-font-size: 20px;"/>
+                    <Label text="Shopping Cart"
+                           style="-fx-font-size: 16px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                </HBox>
+                
+                <Separator/>
 
-                <TableView fx:id="cartTable">
+                <!-- Cart Table -->
+                <TableView fx:id="cartTable"
+                           style="-fx-background-color: transparent;"
+                           VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colName" text="Product"/>
-                        <TableColumn fx:id="colQty" text="Qty"/>
-                        <TableColumn fx:id="colPrice" text="Price"/>
-                        <TableColumn fx:id="colSubtotal" text="Subtotal"/>
+                        <TableColumn fx:id="colName" 
+                                     text="Product Name" 
+                                     prefWidth="200"
+                                     style="-fx-alignment: CENTER-LEFT;"/>
+                        <TableColumn fx:id="colQty" 
+                                     text="Qty" 
+                                     prefWidth="80"
+                                     style="-fx-alignment: CENTER;"/>
+                        <TableColumn fx:id="colPrice" 
+                                     text="Price (RM)" 
+                                     prefWidth="100"
+                                     style="-fx-alignment: CENTER-RIGHT;"/>
+                        <TableColumn fx:id="colSubtotal" 
+                                     text="Subtotal (RM)" 
+                                     prefWidth="120"
+                                     style="-fx-alignment: CENTER-RIGHT;"/>
                     </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
                 </TableView>
 
-                <Label fx:id="totalLabel"
-                       text="Total: 0.00"
-                       style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <Separator/>
 
-                <Button text="Confirm Sale" onAction="#handleConfirmSale"/>
-                <Button text="Back" onAction="#handleBack"/>
+                <!-- Total Section -->
+                <HBox alignment="CENTER_RIGHT" spacing="10"
+                      style="-fx-background-color: #f8f9fa; 
+                             -fx-background-radius: 5; 
+                             -fx-padding: 15;">
+                    <Label text="Grand Total:"
+                           style="-fx-font-size: 16px; 
+                                  -fx-font-weight: 600; 
+                                  -fx-text-fill: #34495e;"/>
+                    <Label fx:id="totalLabel"
+                           text="Total: 0.00"
+                           style="-fx-font-size: 20px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #27ae60;"/>
+                </HBox>
+
+                <!-- Action Buttons -->
+                <HBox spacing="10">
+                    <Button text="🗑️ Clear Cart" 
+                            onAction="#handleClearCart"
+                            style="-fx-background-color: #e74c3c; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-size: 13px; 
+                                   -fx-font-weight: 600; 
+                                   -fx-background-radius: 5; 
+                                   -fx-padding: 12 20 12 20;
+                                   -fx-cursor: hand;"/>
+                    
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <Button text="✓ Confirm Sale" 
+                            onAction="#handleConfirmSale"
+                            prefWidth="200"
+                            style="-fx-background-color: #27ae60; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-size: 14px; 
+                                   -fx-font-weight: bold; 
+                                   -fx-background-radius: 5; 
+                                   -fx-padding: 12;
+                                   -fx-cursor: hand;"/>
+                </HBox>
             </VBox>
 
         </HBox>
     </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" 
+              style="-fx-background-color: white; 
+                     -fx-border-color: #e0e0e0; 
+                     -fx-border-width: 1 0 0 0;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            
+            <Button text="← Back to Dashboard" 
+                    onAction="#handleBack"
+                    style="-fx-background-color: #95a5a6; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 13px; 
+                           -fx-font-weight: 600; 
+                           -fx-background-radius: 5; 
+                           -fx-padding: 10 20 10 20;
+                           -fx-cursor: hand;"/>
+        </HBox>
+    </bottom>
 
 </BorderPane>

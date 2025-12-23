@@ -1,29 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controller.ReportController">
+            fx:controller="controller.ReportController"
+            style="-fx-background-color: #f5f5f5;">
 
     <top>
-        <Label text="Sales Per Branch Report"
-               style="-fx-font-size: 18px;"
-               BorderPane.alignment="CENTER"/>
+        <VBox style="-fx-background-color: white; 
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
+            <padding>
+                <Insets top="25" right="30" bottom="25" left="30"/>
+            </padding>
+            
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label text="📊" style="-fx-font-size: 28px;"/>
+                <VBox spacing="3">
+                    <Label text="Sales Per Branch Report"
+                           style="-fx-font-size: 20px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                    <Label text="View total sales performance by branch location"
+                           style="-fx-font-size: 13px; 
+                                  -fx-text-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+        </VBox>
     </top>
 
     <center>
-        <TableView fx:id="branchReportTable">
-            <columns>
-                <TableColumn fx:id="colBranch" text="Branch"/>
-                <TableColumn fx:id="colTotal" text="Total Sales"/>
-            </columns>
-        </TableView>
+        <VBox alignment="CENTER" spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            
+            <!-- Report Card Container -->
+            <VBox style="-fx-background-color: white; 
+                        -fx-background-radius: 10;
+                        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                  maxWidth="900"
+                  VBox.vgrow="ALWAYS">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+                
+                <!-- Table -->
+                <TableView fx:id="branchReportTable"
+                           style="-fx-background-color: transparent;"
+                           VBox.vgrow="ALWAYS">
+                    
+                    <columns>
+                        <TableColumn fx:id="colBranch" 
+                                     text="Branch Name" 
+                                     prefWidth="400"
+                                     style="-fx-alignment: CENTER-LEFT;"/>
+                        <TableColumn fx:id="colTotal" 
+                                     text="Total Sales (RM)" 
+                                     prefWidth="300"
+                                     style="-fx-alignment: CENTER-RIGHT;"/>
+                    </columns>
+                    
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+        </VBox>
     </center>
 
     <bottom>
-        <Button text="Back" onAction="#handleBack"/>
+        <HBox alignment="CENTER" 
+              style="-fx-background-color: white; 
+                     -fx-border-color: #e0e0e0; 
+                     -fx-border-width: 1 0 0 0;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            
+            <Button text="← Back" 
+                    onAction="#handleBack"
+                    style="-fx-background-color: #95a5a6; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 13px; 
+                           -fx-font-weight: 600; 
+                           -fx-background-radius: 5; 
+                           -fx-padding: 10 20 10 20;
+                           -fx-cursor: hand;"/>
+        </HBox>
     </bottom>
 
 </BorderPane>

@@ -6,24 +6,256 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="controller.ChartController">
+            fx:controller="controller.ChartController"
+            style="-fx-background-color: #f5f5f5;">
 
     <top>
-        <Label text="Sales Per Branch Chart"
-               style="-fx-font-size: 18px; -fx-font-weight: bold;"
-               BorderPane.alignment="CENTER"/>
+        <VBox style="-fx-background-color: white; 
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
+            <padding>
+                <Insets top="25" right="30" bottom="25" left="30"/>
+            </padding>
+            
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label text="📈" style="-fx-font-size: 28px;"/>
+                <VBox spacing="3">
+                    <Label text="Sales Analytics Dashboard"
+                           style="-fx-font-size: 20px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                    <Label text="Visual representation of sales performance by branch"
+                           style="-fx-font-size: 13px; 
+                                  -fx-text-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+            
+            <!-- Chart Type Selector -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <VBox.margin>
+                    <Insets top="15"/>
+                </VBox.margin>
+                
+                <Label text="View Type:"
+                       style="-fx-font-size: 13px; 
+                              -fx-font-weight: 600; 
+                              -fx-text-fill: #34495e;"/>
+                
+                <ToggleButton fx:id="barChartBtn" 
+                              text="📊 Bar Chart" 
+                              selected="true"
+                              onAction="#handleBarChart"
+                              style="-fx-background-color: #3498db; 
+                                     -fx-text-fill: white; 
+                                     -fx-font-size: 12px; 
+                                     -fx-font-weight: 600; 
+                                     -fx-background-radius: 5; 
+                                     -fx-padding: 8 15 8 15;
+                                     -fx-cursor: hand;">
+                    <toggleGroup>
+                        <ToggleGroup fx:id="chartTypeGroup"/>
+                    </toggleGroup>
+                </ToggleButton>
+                
+                <ToggleButton fx:id="pieChartBtn" 
+                              text="🥧 Pie Chart"
+                              toggleGroup="$chartTypeGroup"
+                              onAction="#handlePieChart"
+                              style="-fx-background-color: #95a5a6; 
+                                     -fx-text-fill: white; 
+                                     -fx-font-size: 12px; 
+                                     -fx-font-weight: 600; 
+                                     -fx-background-radius: 5; 
+                                     -fx-padding: 8 15 8 15;
+                                     -fx-cursor: hand;"/>
+                
+                <ToggleButton fx:id="lineChartBtn" 
+                              text="📉 Line Chart"
+                              toggleGroup="$chartTypeGroup"
+                              onAction="#handleLineChart"
+                              style="-fx-background-color: #95a5a6; 
+                                     -fx-text-fill: white; 
+                                     -fx-font-size: 12px; 
+                                     -fx-font-weight: 600; 
+                                     -fx-background-radius: 5; 
+                                     -fx-padding: 8 15 8 15;
+                                     -fx-cursor: hand;"/>
+                
+                <Region HBox.hgrow="ALWAYS"/>
+                
+                <Button text="🔄 Refresh Data" 
+                        onAction="#handleRefresh"
+                        style="-fx-background-color: #27ae60; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 12px; 
+                               -fx-font-weight: 600; 
+                               -fx-background-radius: 5; 
+                               -fx-padding: 8 15 8 15;
+                               -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
     </top>
 
     <center>
-        <StackPane fx:id="chartContainer"/>
+        <VBox alignment="CENTER" spacing="15">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            
+            <!-- Chart Container Card -->
+            <VBox style="-fx-background-color: white; 
+                        -fx-background-radius: 10;
+                        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                  VBox.vgrow="ALWAYS"
+                  maxWidth="1200">
+                <padding>
+                    <Insets top="25" right="25" bottom="25" left="25"/>
+                </padding>
+                
+                <!-- Chart Title -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <VBox.margin>
+                        <Insets bottom="15"/>
+                    </VBox.margin>
+                    
+                    <Label text="Sales Performance by Branch"
+                           style="-fx-font-size: 16px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                    
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <Label fx:id="chartDateLabel"
+                           text="Updated: Today"
+                           style="-fx-font-size: 11px; 
+                                  -fx-text-fill: #95a5a6;"/>
+                </HBox>
+                
+                <Separator/>
+                
+                <!-- Chart Display Area -->
+                <StackPane fx:id="chartContainer"
+                          VBox.vgrow="ALWAYS"
+                          minHeight="400"
+                          style="-fx-background-color: #fafafa; 
+                                 -fx-background-radius: 5;">
+                    <VBox.margin>
+                        <Insets top="15"/>
+                    </VBox.margin>
+                    
+                    <!-- Empty State (shown when no data) -->
+                    <VBox fx:id="emptyState" 
+                          alignment="CENTER" 
+                          spacing="15"
+                          visible="false">
+                        <Label text="📊" style="-fx-font-size: 48px;"/>
+                        <Label text="No Data Available"
+                               style="-fx-font-size: 18px; 
+                                      -fx-font-weight: bold; 
+                                      -fx-text-fill: #7f8c8d;"/>
+                        <Label text="Sales data will appear here once available"
+                               style="-fx-font-size: 13px; 
+                                      -fx-text-fill: #95a5a6;"/>
+                    </VBox>
+                </StackPane>
+                
+                <!-- Chart Legend/Info -->
+                <HBox spacing="20" alignment="CENTER">
+                    <VBox.margin>
+                        <Insets top="15"/>
+                    </VBox.margin>
+                    
+                    <VBox alignment="CENTER" spacing="3"
+                          style="-fx-background-color: #e8f5e9; 
+                                 -fx-background-radius: 5; 
+                                 -fx-padding: 10 20 10 20;">
+                        <Label text="Total Sales"
+                               style="-fx-font-size: 11px; 
+                                      -fx-text-fill: #2e7d32;
+                                      -fx-font-weight: 600;"/>
+                        <Label fx:id="totalSalesLabel" 
+                               text="RM 0.00"
+                               style="-fx-font-size: 16px; 
+                                      -fx-font-weight: bold; 
+                                      -fx-text-fill: #1b5e20;"/>
+                    </VBox>
+                    
+                    <VBox alignment="CENTER" spacing="3"
+                          style="-fx-background-color: #e3f2fd; 
+                                 -fx-background-radius: 5; 
+                                 -fx-padding: 10 20 10 20;">
+                        <Label text="Average per Branch"
+                               style="-fx-font-size: 11px; 
+                                      -fx-text-fill: #1565c0;
+                                      -fx-font-weight: 600;"/>
+                        <Label fx:id="avgSalesLabel" 
+                               text="RM 0.00"
+                               style="-fx-font-size: 16px; 
+                                      -fx-font-weight: bold; 
+                                      -fx-text-fill: #0d47a1;"/>
+                    </VBox>
+                    
+                    <VBox alignment="CENTER" spacing="3"
+                          style="-fx-background-color: #fff3e0; 
+                                 -fx-background-radius: 5; 
+                                 -fx-padding: 10 20 10 20;">
+                        <Label text="Top Branch"
+                               style="-fx-font-size: 11px; 
+                                      -fx-text-fill: #e65100;
+                                      -fx-font-weight: 600;"/>
+                        <Label fx:id="topBranchLabel" 
+                               text="-"
+                               style="-fx-font-size: 16px; 
+                                      -fx-font-weight: bold; 
+                                      -fx-text-fill: #bf360c;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER">
+        <HBox alignment="CENTER" 
+              style="-fx-background-color: white; 
+                     -fx-border-color: #e0e0e0; 
+                     -fx-border-width: 1 0 0 0;">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="15" right="20" bottom="15" left="20"/>
             </padding>
-            <Button text="Back" onAction="#handleBack"/>
+            
+            <HBox spacing="10">
+                <Button text="🖨️ Print Chart" 
+                        onAction="#handlePrint"
+                        style="-fx-background-color: #3498db; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 13px; 
+                               -fx-font-weight: 600; 
+                               -fx-background-radius: 5; 
+                               -fx-padding: 10 20 10 20;
+                               -fx-cursor: hand;"/>
+                
+                <Button text="💾 Export PNG" 
+                        onAction="#handleExport"
+                        style="-fx-background-color: #9b59b6; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 13px; 
+                               -fx-font-weight: 600; 
+                               -fx-background-radius: 5; 
+                               -fx-padding: 10 20 10 20;
+                               -fx-cursor: hand;"/>
+            </HBox>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Button text="← Back to Dashboard" 
+                    onAction="#handleBack"
+                    style="-fx-background-color: #95a5a6; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 13px; 
+                           -fx-font-weight: 600; 
+                           -fx-background-radius: 5; 
+                           -fx-padding: 10 20 10 20;
+                           -fx-cursor: hand;"/>
         </HBox>
     </bottom>
 

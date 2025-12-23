@@ -97,6 +97,36 @@ public class SalesController {
         }
     }
 
+    @FXML
+    private void handleClearCart() {
+        if (cart.isEmpty()) {
+            showAlert("Cart is already empty.");
+            return;
+        }
+
+        // Confirm with user before clearing
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Clear Cart");
+        confirmAlert.setHeaderText("Clear Shopping Cart?");
+        confirmAlert.setContentText("This will remove all items from your cart. Continue?");
+
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                cart.clear();
+                updateTotal();
+                quantityField.clear();
+                productComboBox.getSelectionModel().clearSelection();
+                
+                // Show success message
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Cart Cleared");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Shopping cart has been cleared.");
+                successAlert.showAndWait();
+            }
+        });
+    }
+
     private void updateTotal() {
         double total = cart.stream()
                 .mapToDouble(SaleItem::getSubtotal)
