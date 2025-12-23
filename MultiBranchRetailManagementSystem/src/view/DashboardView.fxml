@@ -44,8 +44,10 @@
 
             <GridPane hgap="20" vgap="20" alignment="CENTER">
                 
+                <!-- Row 0 -->
+                
                 <!-- Products Card -->
-                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="0">
+                <StackPane fx:id="productsCard" GridPane.rowIndex="0" GridPane.columnIndex="0">
                     <VBox alignment="CENTER" spacing="10"
                           style="-fx-background-color: white; 
                                  -fx-background-radius: 10; 
@@ -71,7 +73,7 @@
                 </StackPane>
 
                 <!-- Branches Card -->
-                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="1">
+                <StackPane fx:id="branchesCard" GridPane.rowIndex="0" GridPane.columnIndex="1">
                     <VBox alignment="CENTER" spacing="10"
                           style="-fx-background-color: white; 
                                  -fx-background-radius: 10; 
@@ -96,8 +98,36 @@
                             style="-fx-cursor: hand;"/>
                 </StackPane>
 
+                <!-- Employees Card -->
+                <StackPane fx:id="employeesCard" GridPane.rowIndex="0" GridPane.columnIndex="2">
+                    <VBox alignment="CENTER" spacing="10"
+                          style="-fx-background-color: white; 
+                                 -fx-background-radius: 10; 
+                                 -fx-padding: 30;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                          prefWidth="200" prefHeight="150">
+                        <Label text="👥" style="-fx-font-size: 36px;"/>
+                        <Label text="Manage Employees"
+                               style="-fx-text-fill: #2c3e50; 
+                                      -fx-font-size: 14px; 
+                                      -fx-font-weight: bold;"/>
+                        <Label text="Add and manage staff"
+                               style="-fx-font-size: 11px; 
+                                      -fx-text-fill: #95a5a6;
+                                      -fx-text-alignment: center;"
+                               wrapText="true" maxWidth="160"/>
+                    </VBox>
+                    <Button fx:id="employeesBtn" 
+                            opacity="0" 
+                            maxWidth="Infinity" 
+                            maxHeight="Infinity"
+                            style="-fx-cursor: hand;"/>
+                </StackPane>
+
+                <!-- Row 1 -->
+                
                 <!-- Sales Card -->
-                <StackPane GridPane.rowIndex="1" GridPane.columnIndex="0">
+                <StackPane fx:id="salesCard" GridPane.rowIndex="1" GridPane.columnIndex="0">
                     <VBox alignment="CENTER" spacing="10"
                           style="-fx-background-color: white; 
                                  -fx-background-radius: 10; 
@@ -123,7 +153,7 @@
                 </StackPane>
 
                 <!-- Reports Card -->
-                <StackPane GridPane.rowIndex="1" GridPane.columnIndex="1">
+                <StackPane fx:id="reportsCard" GridPane.rowIndex="1" GridPane.columnIndex="1">
                     <VBox alignment="CENTER" spacing="10"
                           style="-fx-background-color: white; 
                                  -fx-background-radius: 10; 
@@ -149,9 +179,7 @@
                 </StackPane>
 
                 <!-- Charts Card -->
-                <StackPane GridPane.rowIndex="2" GridPane.columnIndex="0"
-                           GridPane.columnSpan="2"
-                           GridPane.halignment="CENTER">
+                <StackPane fx:id="chartsCard" GridPane.rowIndex="1" GridPane.columnIndex="2">
                     <VBox alignment="CENTER" spacing="10"
                           style="-fx-background-color: white; 
                                  -fx-background-radius: 10; 
@@ -170,6 +198,38 @@
                                wrapText="true" maxWidth="160"/>
                     </VBox>
                     <Button fx:id="chartsBtn" 
+                            opacity="0" 
+                            maxWidth="Infinity" 
+                            maxHeight="Infinity"
+                            style="-fx-cursor: hand;"/>
+                </StackPane>
+
+                <!-- Row 2 -->
+                
+                <!-- Audit Logs Card -->
+                <StackPane fx:id="auditLogsCard" 
+                           GridPane.rowIndex="2" 
+                           GridPane.columnIndex="0"
+                           GridPane.columnSpan="3"
+                           GridPane.halignment="CENTER">
+                    <VBox alignment="CENTER" spacing="10"
+                          style="-fx-background-color: white; 
+                                 -fx-background-radius: 10; 
+                                 -fx-padding: 30;
+                                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                          prefWidth="200" prefHeight="150">
+                        <Label text="📋" style="-fx-font-size: 36px;"/>
+                        <Label text="Audit Logs"
+                               style="-fx-text-fill: #2c3e50; 
+                                      -fx-font-size: 14px; 
+                                      -fx-font-weight: bold;"/>
+                        <Label text="View system activity logs"
+                               style="-fx-font-size: 11px; 
+                                      -fx-text-fill: #95a5a6;
+                                      -fx-text-alignment: center;"
+                               wrapText="true" maxWidth="160"/>
+                    </VBox>
+                    <Button fx:id="auditLogsBtn" 
                             opacity="0" 
                             maxWidth="Infinity" 
                             maxHeight="Infinity"

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.AuditLogController"
+            style="-fx-background-color: #f5f5f5;">
+
+    <top>
+        <VBox style="-fx-background-color: white; 
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+            <padding>
+                <Insets top="20" right="25" bottom="20" left="25"/>
+            </padding>
+            
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="📋" style="-fx-font-size: 24px;"/>
+                <VBox spacing="5">
+                    <Label text="Audit Logs"
+                           style="-fx-font-size: 18px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                    <Label fx:id="infoLabel"
+                           text="View system activity"
+                           style="-fx-font-size: 12px; 
+                                  -fx-text-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="15">
+            <padding>
+                <Insets top="20" right="25" bottom="20" left="25"/>
+            </padding>
+
+            <!-- Search and Filter Bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField"
+                          promptText="Search by action..."
+                          prefWidth="300"
+                          style="-fx-font-size: 13px;"/>
+                
+                <Button text="🔍 Search"
+                        onAction="#handleSearch"
+                        style="-fx-background-color: #3498db; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 12px;
+                               -fx-cursor: hand;"/>
+                
+                <ComboBox fx:id="filterComboBox"
+                         promptText="Filter by type"
+                         prefWidth="150"
+                         style="-fx-font-size: 12px;"/>
+                
+                <Region HBox.hgrow="ALWAYS"/>
+                
+                <Button text="🔄 Refresh"
+                        onAction="#handleRefresh"
+                        style="-fx-background-color: #2ecc71; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 12px;
+                               -fx-cursor: hand;"/>
+                
+                <Button text="📥 Export"
+                        onAction="#handleExport"
+                        style="-fx-background-color: #9b59b6; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 12px;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- Audit Logs Table -->
+            <TableView fx:id="auditTable" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white;">
+                <columns>
+                    <TableColumn fx:id="colLogId" 
+                                text="ID" 
+                                prefWidth="60"
+                                style="-fx-alignment: CENTER;"/>
+                    
+                    <TableColumn fx:id="colEmployee" 
+                                text="Employee" 
+                                prefWidth="150"/>
+                    
+                    <TableColumn fx:id="colRole" 
+                                text="Role" 
+                                prefWidth="100"
+                                style="-fx-alignment: CENTER;"/>
+                    
+                    <TableColumn fx:id="colAction" 
+                                text="Action" 
+                                prefWidth="400"/>
+                    
+                    <TableColumn fx:id="colTime" 
+                                text="Timestamp" 
+                                prefWidth="180"
+                                style="-fx-alignment: CENTER;"/>
+                </columns>
+            </TableView>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" 
+              spacing="10"
+              style="-fx-background-color: white; 
+                     -fx-border-color: #e0e0e0; 
+                     -fx-border-width: 1 0 0 0;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            
+            <Button text="⬅️ Back to Dashboard" 
+                    onAction="#handleBack"
+                    style="-fx-background-color: #95a5a6; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 12px;
+                           -fx-cursor: hand;"/>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Label text="💡 Tip: Use filters to narrow down results"
+                   style="-fx-font-size: 11px; 
+                          -fx-text-fill: #7f8c8d;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

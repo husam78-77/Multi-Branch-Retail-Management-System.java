@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import main.SceneManager;
 import model.Employee;
 import service.AuthService;
+import service.AuditService;
 import util.SessionManager;
 
 public class LoginController {
@@ -21,6 +22,7 @@ public class LoginController {
     private Label messageLabel;
 
     private final AuthService authService = new AuthService();
+    private final AuditService auditService = new AuditService();
 
     @FXML
     private void handleLogin() {
@@ -30,6 +32,7 @@ public class LoginController {
 
         if (username.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Please enter username and password");
+            messageLabel.setStyle("-fx-text-fill: #e74c3c;");
             return;
         }
 
@@ -37,9 +40,14 @@ public class LoginController {
 
         if (employee != null) {
             SessionManager.setCurrentUser(employee);
+            
+            auditService.logLogin(username);
+            
             SceneManager.switchScene("/view/DashboardView.fxml", "Dashboard");
         } else {
             messageLabel.setText("Invalid username or password");
+            messageLabel.setStyle("-fx-text-fill: #e74c3c;");
+            
         }
     }
 }

@@ -1,7 +1,5 @@
 package controller;
 
-import dao.BranchDAO;
-import dao.ProductDAO;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,7 +9,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import main.SceneManager;
 import model.Branch;
+import model.Employee;
 import model.Product;
+import service.BranchService;
+import service.ProductService;
+import util.AccessDeniedException;
+import util.PermissionManager;
+import util.SessionManager;
 
 public class ProductController {
 
@@ -30,39 +34,63 @@ public class ProductController {
     @FXML private TextField quantityField;
     @FXML private ComboBox<Branch> branchComboBox;
 
-    private final ProductDAO productDAO = new ProductDAO();
-    private final BranchDAO branchDAO = new BranchDAO();
-    private final ObservableList<Product> productList =
-            FXCollections.observableArrayList();
+    @FXML private Label userInfoLabel; 
+
+    private final ProductService productService = new ProductService();
+    private final BranchService branchService = new BranchService();
+    
+    private final ObservableList<Product> productList = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
+        if (!PermissionManager.canManageProducts()) {
+            showAlert("Access Denied", 
+                     "You don't have permission to manage products.", 
+                     Alert.AlertType.ERROR);
+            handleBack();
+            return;
+        }
 
+        setupTableColumns();
+        setupBranchComboBox();
+        setupUserInfo();
+        setupTableSelectionListener();
+        loadProducts();
+    }
+
+    private void setupTableColumns() {
         colId.setCellValueFactory(data ->
-                new SimpleIntegerProperty(
-                        data.getValue().getProductId()).asObject());
+                new SimpleIntegerProperty(data.getValue().getProductId()).asObject());
 
         colName.setCellValueFactory(data ->
-                new SimpleStringProperty(
-                        data.getValue().getProductName()));
+                new SimpleStringProperty(data.getValue().getProductName()));
 
         colCategory.setCellValueFactory(data ->
-                new SimpleStringProperty(
-                        data.getValue().getCategory()));
+                new SimpleStringProperty(data.getValue().getCategory()));
 
         colPrice.setCellValueFactory(data ->
-                new SimpleDoubleProperty(
-                        data.getValue().getPrice()).asObject());
+                new SimpleDoubleProperty(data.getValue().getPrice()).asObject());
 
         colQuantity.setCellValueFactory(data ->
-                new SimpleIntegerProperty(
-                        data.getValue().getQuantity()).asObject());
+                new SimpleIntegerProperty(data.getValue().getQuantity()).asObject());
 
         colBranch.setCellValueFactory(data ->
-                new SimpleIntegerProperty(
-                        data.getValue().getBranchId()).asObject());
+                new SimpleIntegerProperty(data.getValue().getBranchId()).asObject());
+    }
 
-        branchComboBox.getItems().addAll(branchDAO.getAll());
+    private void setupBranchComboBox() {
+        Employee currentUser = SessionManager.getCurrentUser();
+
+        if (PermissionManager.isAdmin()) {
+            try {
+                branchComboBox.getItems().addAll(branchService.getAllBranches());
+                branchComboBox.setDisable(false);
+            } catch (AccessDeniedException e) {
+                showAlert("Error", "Failed to load branches", Alert.AlertType.ERROR);
+            }
+        } else if (PermissionManager.isManager()) {
+            branchComboBox.setDisable(true);
+        }
 
         branchComboBox.setCellFactory(cb -> new ListCell<>() {
             @Override
@@ -79,111 +107,219 @@ public class ProductController {
                 setText(empty || item == null ? "" : item.getBranchName());
             }
         });
+    }
 
-        	productTable.getSelectionModel().selectedItemProperty().addListener(
-        	    (obs, oldVal, selected) -> {
-        	        if (selected != null) {
+    private void setupUserInfo() {
+        if (userInfoLabel != null) {
+            Employee user = SessionManager.getCurrentUser();
+            if (PermissionManager.isManager()) {
+                userInfoLabel.setText(
+                    "⚠️ You can only manage products for Branch ID: " + user.getBranchId()
+                );
+                userInfoLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
+            } else {
+                userInfoLabel.setText("✓ Admin - Full Access to All Branches");
+                userInfoLabel.setStyle("-fx-text-fill: #51cf66; -fx-font-weight: bold;");
+            }
+        }
+    }
 
-        	            nameField.setText(selected.getProductName());
-        	            categoryField.setText(selected.getCategory());
-        	            priceField.setText(String.valueOf(selected.getPrice()));
-        	            quantityField.setText(String.valueOf(selected.getQuantity()));
+    private void setupTableSelectionListener() {
+        productTable.getSelectionModel().selectedItemProperty().addListener(
+            (obs, oldVal, selected) -> {
+                if (selected != null) {
+                    nameField.setText(selected.getProductName());
+                    categoryField.setText(selected.getCategory());
+                    priceField.setText(String.valueOf(selected.getPrice()));
+                    quantityField.setText(String.valueOf(selected.getQuantity()));
 
-        	            branchComboBox.getItems().forEach(branch -> {
-        	                if (branch.getBranchId() == selected.getBranchId()) {
-        	                    branchComboBox.setValue(branch);
-        	                }
-        	            });
-        	        }
-        	    }
-        	);
-
-        loadProducts();
+                    if (PermissionManager.isAdmin()) {
+                        branchComboBox.getItems().forEach(branch -> {
+                            if (branch.getBranchId() == selected.getBranchId()) {
+                                branchComboBox.setValue(branch);
+                            }
+                        });
+                    }
+                }
+            }
+        );
     }
 
     @FXML
     public void loadProducts() {
-        productList.clear();
-        productList.addAll(productDAO.getAll());
-        productTable.setItems(productList);
+        try {
+            productList.clear();
+            productList.addAll(productService.getAllProducts());
+            productTable.setItems(productList);
+        } catch (AccessDeniedException e) {
+            showAlert("Access Denied", e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Failed to load products: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
     private void handleSearch() {
-        productList.clear();
-        productList.addAll(productDAO.searchByName(searchField.getText()));
-        productTable.setItems(productList);
-    }
-
-    @FXML
-    private void handleAdd() {
-
-        Branch selectedBranch = branchComboBox.getValue();
-
-        if (selectedBranch == null) {
-            showAlert("Please select a branch.");
+        String keyword = searchField.getText().trim();
+        
+        if (keyword.isEmpty()) {
+            loadProducts();
             return;
         }
 
         try {
+            productList.clear();
+            productList.addAll(productService.searchProducts(keyword));
+            productTable.setItems(productList);
+        } catch (AccessDeniedException e) {
+            showAlert("Access Denied", e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Search failed: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    private void handleAdd() {
+        try {
+            if (nameField.getText().trim().isEmpty() ||
+                categoryField.getText().trim().isEmpty() ||
+                priceField.getText().trim().isEmpty() ||
+                quantityField.getText().trim().isEmpty()) {
+                showAlert("Validation Error", "Please fill in all fields.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            int branchId;
+            Employee currentUser = SessionManager.getCurrentUser();
+
+            if (PermissionManager.isAdmin()) {
+                Branch selectedBranch = branchComboBox.getValue();
+                if (selectedBranch == null) {
+                    showAlert("Validation Error", "Please select a branch.", Alert.AlertType.WARNING);
+                    return;
+                }
+                branchId = selectedBranch.getBranchId();
+            } else {
+                branchId = currentUser.getBranchId();
+            }
+
             Product product = new Product(
-                    nameField.getText(),
-                    categoryField.getText(),
-                    Double.parseDouble(priceField.getText()),
-                    0,
-                    Integer.parseInt(quantityField.getText()),
-                    selectedBranch.getBranchId()
+                    nameField.getText().trim(),
+                    categoryField.getText().trim(),
+                    Double.parseDouble(priceField.getText().trim()),
+                    0, 
+                    Integer.parseInt(quantityField.getText().trim()),
+                    branchId
             );
 
-            productDAO.insert(product);
+            productService.addProduct(product);
+            
+            showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
             loadProducts();
             clearFields();
 
         } catch (NumberFormatException e) {
-            showAlert("Invalid number format.");
+            showAlert("Validation Error", "Invalid number format.", Alert.AlertType.WARNING);
+        } catch (AccessDeniedException e) {
+            showAlert("Access Denied", e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Failed to add product: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void handleUpdate() {
-
         Product selected = productTable.getSelectionModel().getSelectedItem();
-        Branch selectedBranch = branchComboBox.getValue();
 
-        if (selected == null || selectedBranch == null) {
-            showAlert("Please select a product and a branch.");
+        if (selected == null) {
+            showAlert("Selection Required", "Please select a product to update.", Alert.AlertType.WARNING);
             return;
         }
 
         try {
+            if (nameField.getText().trim().isEmpty() ||
+                categoryField.getText().trim().isEmpty() ||
+                priceField.getText().trim().isEmpty() ||
+                quantityField.getText().trim().isEmpty()) {
+                showAlert("Validation Error", "Please fill in all fields.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            int branchId;
+            Employee currentUser = SessionManager.getCurrentUser();
+
+            if (PermissionManager.isAdmin()) {
+                Branch selectedBranch = branchComboBox.getValue();
+                if (selectedBranch == null) {
+                    showAlert("Validation Error", "Please select a branch.", Alert.AlertType.WARNING);
+                    return;
+                }
+                branchId = selectedBranch.getBranchId();
+            } else {
+                branchId = currentUser.getBranchId();
+                
+                if (selected.getBranchId() != branchId) {
+                    showAlert("Access Denied", 
+                             "You can only update products from your branch.", 
+                             Alert.AlertType.ERROR);
+                    return;
+                }
+            }
+
             Product updated = new Product(
                     selected.getProductId(),
-                    nameField.getText(),
-                    categoryField.getText(),
-                    Double.parseDouble(priceField.getText()),
-                    selected.getCost(),
-                    Integer.parseInt(quantityField.getText()),
-                    selectedBranch.getBranchId(),
+                    nameField.getText().trim(),
+                    categoryField.getText().trim(),
+                    Double.parseDouble(priceField.getText().trim()),
+                    selected.getCost(), // Keep existing cost
+                    Integer.parseInt(quantityField.getText().trim()),
+                    branchId,
                     false
             );
 
-            productDAO.update(updated);
+            productService.updateProduct(updated);
+            
+            showAlert("Success", "Product updated successfully!", Alert.AlertType.INFORMATION);
             loadProducts();
             clearFields();
 
         } catch (NumberFormatException e) {
-            showAlert("Invalid number format.");
+            showAlert("Validation Error", "Invalid number format.", Alert.AlertType.WARNING);
+        } catch (AccessDeniedException e) {
+            showAlert("Access Denied", e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Failed to update product: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void handleDelete() {
-
         Product selected = productTable.getSelectionModel().getSelectedItem();
 
-        if (selected != null) {
-            productDAO.softDelete(selected.getProductId());
+        if (selected == null) {
+            showAlert("Selection Required", "Please select a product to delete.", Alert.AlertType.WARNING);
+            return;
+        }
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Delete");
+        confirmAlert.setHeaderText("Delete Product");
+        confirmAlert.setContentText("Are you sure you want to delete: " + selected.getProductName() + "?");
+
+        if (confirmAlert.showAndWait().get() != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            productService.deleteProduct(selected.getProductId());
+            
+            showAlert("Success", "Product deleted successfully!", Alert.AlertType.INFORMATION);
             loadProducts();
+            clearFields();
+
+        } catch (AccessDeniedException e) {
+            showAlert("Access Denied", e.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception e) {
+            showAlert("Error", "Failed to delete product: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -197,11 +333,17 @@ public class ProductController {
         categoryField.clear();
         priceField.clear();
         quantityField.clear();
-        branchComboBox.setValue(null);
+        
+        if (PermissionManager.isAdmin()) {
+            branchComboBox.setValue(null);
+        }
+        
+        productTable.getSelectionModel().clearSelection();
     }
 
-    private void showAlert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
+    private void showAlert(String title, String msg, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
