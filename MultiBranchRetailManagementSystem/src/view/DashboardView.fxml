@@ -37,6 +37,10 @@
             <Button fx:id="reportsBtn" text="Reports"
                     GridPane.rowIndex="1" GridPane.columnIndex="1"
                     prefWidth="180"/>
+
+            <Button fx:id="chartsBtn" text="Charts"
+                    GridPane.rowIndex="2" GridPane.columnIndex="0"
+                    prefWidth="180"/>
         </GridPane>
     </center>
 

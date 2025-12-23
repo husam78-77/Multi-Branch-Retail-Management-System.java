@@ -15,7 +15,10 @@
     </top>
 
     <center>
-        <HBox spacing="20" padding="15">
+        <HBox spacing="20">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
 
             <VBox spacing="10">
                 <Label text="Select Product"/>

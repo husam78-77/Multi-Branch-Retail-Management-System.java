@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -23,7 +24,10 @@
     </center>
 
     <bottom>
-        <HBox alignment="CENTER" padding="10">
+        <HBox alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
             <Button text="Back" onAction="#handleBack"/>
         </HBox>
     </bottom>

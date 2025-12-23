@@ -9,7 +9,10 @@
             fx:controller="controller.BranchController">
 
     <top>
-        <VBox spacing="10" padding="10">
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
             <Label text="Branch Management"
                    style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
@@ -36,7 +39,10 @@
     </center>
 
     <bottom>
-        <VBox spacing="10" padding="10">
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
             <GridPane hgap="10" vgap="10">
                 <TextField fx:id="nameField" promptText="Branch Name"/>
                 <TextField fx:id="cityField" promptText="City"/>
