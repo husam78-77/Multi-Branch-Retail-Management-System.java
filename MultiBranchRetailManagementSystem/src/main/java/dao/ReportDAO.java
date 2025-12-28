@@ -12,64 +12,69 @@ import java.util.List;
 
 public class ReportDAO {
 
-    public List<BranchSalesReport> getSalesPerBranch() {
+	public List<BranchSalesReport> getSalesPerBranch() {
 
-        List<BranchSalesReport> list = new ArrayList<>();
+	    List<BranchSalesReport> list = new ArrayList<>();
 
-        String sql = """
-            select b.branch_name, sum(s.total_amount) as total_sales
-            from sales s
-            join branches b on s.branch_id = b.branch_id
-            group by b.branch_name
-        """;
+	    String sql = """
+	        SELECT b.branch_id, b.branch_name, SUM(s.total_amount) AS total_sales
+	        FROM sales s
+	        JOIN branches b ON s.branch_id = b.branch_id
+	        GROUP BY b.branch_id, b.branch_name
+	    """;
 
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+	    try (Connection conn = DBConnection.getConnection();
+	         Statement stmt = conn.createStatement();
+	         ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
-                list.add(new BranchSalesReport(
-                        rs.getString("branch_name"),
-                        rs.getDouble("total_sales")
-                ));
-            }
+	        while (rs.next()) {
+	        	list.add(new BranchSalesReport(
+	        		    rs.getInt("branch_id"),
+	        		    rs.getString("branch_name"),
+	        		    rs.getDouble("total_sales")
+	        		));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	        }
 
-        return list;
-    }
-    
-    public List<BestProductReport> getBestSellingProducts() {
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-        List<BestProductReport> list = new ArrayList<>();
+	    return list;
+	}
 
-        String sql = """
-            select p.product_name, sum(sd.quantity) as total_sold
-            from sale_details sd
-            join products p on sd.product_id = p.product_id
-            group by p.product_name
-            order by total_sold desc
-            limit 5
-        """;
+	public List<BestProductReport> getBestSellingProducts() {
 
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+	    List<BestProductReport> list = new ArrayList<>();
 
-            while (rs.next()) {
-                list.add(new BestProductReport(
-                        rs.getString("product_name"),
-                        rs.getInt("total_sold")
-                ));
-            }
+	    String sql = """
+	        SELECT sd.product_id, p.product_name, SUM(sd.quantity) AS total_sold
+	        FROM sale_details sd
+	        JOIN products p ON sd.product_id = p.product_id
+	        GROUP BY sd.product_id, p.product_name
+	        ORDER BY total_sold DESC
+	        LIMIT 5
+	    """;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    try (Connection conn = DBConnection.getConnection();
+	         Statement stmt = conn.createStatement();
+	         ResultSet rs = stmt.executeQuery(sql)) {
 
-        return list;
-    }
+	        while (rs.next()) {
+	        	list.add(new BestProductReport(
+	        		    rs.getInt("product_id"),
+	        		    rs.getString("product_name"),
+	        		    rs.getInt("total_sold")
+	        		));
+
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return list;
+	}
+
 
 }

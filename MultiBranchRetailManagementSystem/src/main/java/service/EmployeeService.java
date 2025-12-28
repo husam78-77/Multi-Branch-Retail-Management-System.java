@@ -216,11 +216,11 @@ public class EmployeeService {
 
     private void validateBranchAssignment(Employee employee) {
         Role role = Role.fromString(employee.getRole());
-        
+
         if (role == Role.ADMIN) {
-            if (employee.getBranchId() != 0 && employee.getBranchId() != -1) {
+            if (employee.getBranchId() != 1) {
                 throw new IllegalArgumentException(
-                    "ADMIN users should not be assigned to a specific branch"
+                    "ADMIN must always belong to the Main Branch (branch_id = 1)"
                 );
             }
         } else {
@@ -231,6 +231,7 @@ public class EmployeeService {
             }
         }
     }
+
 
     private Employee getEmployeeById(int employeeId) {
         return employeeDAO.getById(employeeId);

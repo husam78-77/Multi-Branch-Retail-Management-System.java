@@ -43,4 +43,21 @@ public class Employee {
     public boolean isDeleted() {
         return isDeleted;
     }
+    
+    public void setBranchId(int branchId) {
+        this.branchId = branchId;
+    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+
 }

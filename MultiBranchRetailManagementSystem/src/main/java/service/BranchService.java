@@ -19,7 +19,6 @@ public class BranchService {
         PermissionManager.requireAdmin("add branch");
         branchDAO.insert(branch);
     }
-
     public void updateBranch(Branch branch) {
         PermissionManager.requireAdmin("update branch");
         branchDAO.update(branch);
@@ -36,7 +35,7 @@ public class BranchService {
     }
 
     public List<Branch> getBranchesForSelection() {
-        PermissionManager.requireAdmin("access branch list");
+        PermissionManager.requireAdmin("access branch selection");
         return branchDAO.getAll();
     }
 }

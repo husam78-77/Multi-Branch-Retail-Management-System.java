@@ -45,4 +45,20 @@ public class Branch {
     public boolean isDeleted() {
         return isDeleted;
     }
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
 }

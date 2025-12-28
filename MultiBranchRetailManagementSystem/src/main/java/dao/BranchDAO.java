@@ -81,20 +81,60 @@ public class BranchDAO {
         }
     }
 
-    public void softDelete(int branchId) {
-        String sql = "UPDATE branches SET is_deleted = true WHERE branch_id = ?";
+    public boolean softDelete(int branchId) {
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        if (branchId == 1) {
+            System.out.println("❌ Main branch cannot be deleted");
+            return false;
+        }
 
-            stmt.setInt(1, branchId);
-            stmt.executeUpdate();
-            System.out.println("🗑 Branch soft deleted");
+        String deleteBranch = """
+            UPDATE branches
+            SET is_deleted = true
+            WHERE branch_id = ?
+        """;
+
+        String deleteEmployees = """
+            UPDATE employees
+            SET is_deleted = true
+            WHERE branch_id = ?
+            AND role IN ('MANAGER', 'CASHIER')
+        """;
+
+        String deleteProducts = """
+            UPDATE products
+            SET is_deleted = true
+            WHERE branch_id = ?
+        """;
+
+        try (Connection conn = DBConnection.getConnection()) {
+
+            conn.setAutoCommit(false); // 🔐 Transaction
+
+            try (
+                PreparedStatement stmtBranch = conn.prepareStatement(deleteBranch);
+                PreparedStatement stmtEmployees = conn.prepareStatement(deleteEmployees);
+                PreparedStatement stmtProducts = conn.prepareStatement(deleteProducts)
+            ) {
+                stmtBranch.setInt(1, branchId);
+                stmtEmployees.setInt(1, branchId);
+                stmtProducts.setInt(1, branchId);
+
+                stmtBranch.executeUpdate();
+                stmtEmployees.executeUpdate();
+                stmtProducts.executeUpdate();
+
+                conn.commit(); // ✅
+                System.out.println("🗑 Branch deleted with all related data");
+                return true;
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
+
 
     public List<Branch> searchByName(String keyword) {
         List<Branch> branches = new ArrayList<>();

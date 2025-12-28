@@ -164,9 +164,7 @@ public class DashboardController {
 
     @FXML
     private void handleLogout() {
-        Employee user = SessionManager.getCurrentUser();
-        auditService.logLogout(user.getUsername());
-        
+        auditService.logLogout();
         SessionManager.logout();
         SceneManager.switchScene("/view/LoginView.fxml", "Login");
     }

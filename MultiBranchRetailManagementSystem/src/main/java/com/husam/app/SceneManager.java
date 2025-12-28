@@ -10,23 +10,36 @@ import util.SessionManager;
 
 import java.util.HashMap;
 import java.util.Map;
+
 public class SceneManager {
 
     private static Stage mainStage;
+    
+    private static final double MIN_WIDTH = 1024;
+    private static final double MIN_HEIGHT = 700;
+    private static final double PREF_WIDTH = 1200;
+    private static final double PREF_HEIGHT = 800;
 
     private static final Map<String, PermissionChecker> PROTECTED_SCENES = new HashMap<>();
 
     static {
         PROTECTED_SCENES.put("/view/BranchView.fxml", () -> PermissionManager.canManageBranches());
         PROTECTED_SCENES.put("/view/ProductView.fxml", () -> PermissionManager.canManageProducts());
+        PROTECTED_SCENES.put("/view/SalesView.fxml", () -> PermissionManager.canPerformSales());
         PROTECTED_SCENES.put("/view/ReportsMenuView.fxml", () -> PermissionManager.canViewReports());
         PROTECTED_SCENES.put("/view/ReportView.fxml", () -> PermissionManager.canViewReports());
         PROTECTED_SCENES.put("/view/ChartView.fxml", () -> PermissionManager.canViewCharts());
         PROTECTED_SCENES.put("/view/EmployeeView.fxml", () -> PermissionManager.canManageEmployees());
-    }
+        PROTECTED_SCENES.put("/view/AuditLogView.fxml", () -> true); 
+        }
 
     public static void setStage(Stage stage) {
         mainStage = stage;
+        
+        mainStage.setMinWidth(MIN_WIDTH);
+        mainStage.setMinHeight(MIN_HEIGHT);
+        mainStage.setWidth(PREF_WIDTH);
+        mainStage.setHeight(PREF_HEIGHT);
     }
 
     public static void switchScene(String fxmlPath, String title) {
@@ -47,8 +60,19 @@ public class SceneManager {
             Parent root = FXMLLoader.load(
                     SceneManager.class.getResource(fxmlPath)
             );
+            
+            Scene scene = new Scene(root, PREF_WIDTH, PREF_HEIGHT);
+            
             mainStage.setTitle(title);
-            mainStage.setScene(new Scene(root));
+            mainStage.setScene(scene);
+            
+            if (mainStage.getWidth() < MIN_WIDTH) {
+                mainStage.setWidth(PREF_WIDTH);
+            }
+            if (mainStage.getHeight() < MIN_HEIGHT) {
+                mainStage.setHeight(PREF_HEIGHT);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
             showError("Failed to load scene: " + title);
@@ -60,8 +84,19 @@ public class SceneManager {
             Parent root = FXMLLoader.load(
                     SceneManager.class.getResource(fxmlPath)
             );
+            
+            Scene scene = new Scene(root, PREF_WIDTH, PREF_HEIGHT);
+            
             mainStage.setTitle(title);
-            mainStage.setScene(new Scene(root));
+            mainStage.setScene(scene);
+            
+            if (mainStage.getWidth() < MIN_WIDTH) {
+                mainStage.setWidth(PREF_WIDTH);
+            }
+            if (mainStage.getHeight() < MIN_HEIGHT) {
+                mainStage.setHeight(PREF_HEIGHT);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
             showError("Failed to load scene: " + title);
@@ -89,8 +124,12 @@ public class SceneManager {
             Parent root = FXMLLoader.load(
                     SceneManager.class.getResource("/view/LoginView.fxml")
             );
+            
+            Scene scene = new Scene(root, PREF_WIDTH, PREF_HEIGHT);
+            
             mainStage.setTitle("Login");
-            mainStage.setScene(new Scene(root));
+            mainStage.setScene(scene);
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

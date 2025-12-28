@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.EmployeeController"
+            style="-fx-background-color: #f5f5f5;">
+
+    <top>
+        <VBox style="-fx-background-color: white; 
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);">
+            <padding>
+                <Insets top="20" right="25" bottom="20" left="25"/>
+            </padding>
+            
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <Label text="👥" style="-fx-font-size: 24px;"/>
+                <VBox spacing="5">
+                    <Label text="Employee Management"
+                           style="-fx-font-size: 18px; 
+                                  -fx-font-weight: bold; 
+                                  -fx-text-fill: #2c3e50;"/>
+                    <Label fx:id="userInfoLabel"
+                           text="Manage staff members"
+                           style="-fx-font-size: 12px; 
+                                  -fx-text-fill: #7f8c8d;"/>
+                    <Label fx:id="roleHintLabel"
+                           style="-fx-font-size: 11px;
+                                  -fx-font-style: italic;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="25" right="25" bottom="25" left="25"/>
+            </padding>
+
+            <!-- Employee Form -->
+            <VBox spacing="15" 
+                  style="-fx-background-color: white; 
+                         -fx-background-radius: 8; 
+                         -fx-padding: 20;
+                         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);">
+                
+                <Label text="Employee Information"
+                       style="-fx-font-size: 14px; 
+                              -fx-font-weight: bold; 
+                              -fx-text-fill: #34495e;"/>
+
+                <GridPane hgap="15" vgap="12">
+                    
+                    <!-- Row 0: Full Name -->
+                    <Label text="Full Name:" 
+                           GridPane.columnIndex="0" GridPane.rowIndex="0"
+                           style="-fx-font-weight: 600;"/>
+                    <TextField fx:id="nameField" 
+                              promptText="Enter full name"
+                              GridPane.columnIndex="1" GridPane.rowIndex="0"
+                              prefWidth="250"
+                              style="-fx-font-size: 13px;"/>
+
+                    <!-- Row 1: Username -->
+                    <Label text="Username:" 
+                           GridPane.columnIndex="0" GridPane.rowIndex="1"
+                           style="-fx-font-weight: 600;"/>
+                    <TextField fx:id="usernameField" 
+                              promptText="Enter username"
+                              GridPane.columnIndex="1" GridPane.rowIndex="1"
+                              prefWidth="250"
+                              style="-fx-font-size: 13px;"/>
+
+                    <!-- Row 2: Password -->
+                    <Label text="Password:" 
+                           GridPane.columnIndex="0" GridPane.rowIndex="2"
+                           style="-fx-font-weight: 600;"/>
+                    <HBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <PasswordField fx:id="passwordField" 
+                                      promptText="Enter password"
+                                      prefWidth="250"
+                                      style="-fx-font-size: 13px;"/>
+                        <Label text="(Required for new employees)"
+                               style="-fx-font-size: 10px; 
+                                      -fx-text-fill: #95a5a6;
+                                      -fx-padding: 8 0 0 5;"/>
+                    </HBox>
+
+                    <!-- Row 3: Role -->
+                    <Label text="Role:" 
+                           GridPane.columnIndex="0" GridPane.rowIndex="3"
+                           style="-fx-font-weight: 600;"/>
+                    <ComboBox fx:id="roleComboBox" 
+                             promptText="Select role"
+                             GridPane.columnIndex="1" GridPane.rowIndex="3"
+                             prefWidth="250"
+                             style="-fx-font-size: 13px;"/>
+
+                    <!-- Row 4: Branch -->
+                    <Label text="Branch:" 
+                           GridPane.columnIndex="0" GridPane.rowIndex="4"
+                           style="-fx-font-weight: 600;"/>
+                    <ComboBox fx:id="branchComboBox" 
+                             promptText="Select branch"
+                             GridPane.columnIndex="1" GridPane.rowIndex="4"
+                             prefWidth="250"
+                             style="-fx-font-size: 13px;"/>
+
+                </GridPane>
+
+                <!-- Action Buttons -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button fx:id="addBtn" 
+                            text="➕ Add Employee" 
+                            onAction="#handleAdd"
+                            style="-fx-background-color: #2ecc71; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: 600;
+                                   -fx-padding: 10 20;
+                                   -fx-cursor: hand;"/>
+                    
+                    <Button fx:id="updateBtn" 
+                            text="✏️ Update" 
+                            onAction="#handleUpdate"
+                            style="-fx-background-color: #3498db; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: 600;
+                                   -fx-padding: 10 20;
+                                   -fx-cursor: hand;"/>
+                    
+                    <Button fx:id="deleteBtn" 
+                            text="🗑️ Delete" 
+                            onAction="#handleDelete"
+                            style="-fx-background-color: #e74c3c; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-size: 13px;
+                                   -fx-font-weight: 600;
+                                   -fx-padding: 10 20;
+                                   -fx-cursor: hand;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Search Bar -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField"
+                          promptText="Search by name..."
+                          prefWidth="300"
+                          style="-fx-font-size: 13px;"/>
+                
+                <Button text="🔍 Search"
+                        onAction="#handleSearch"
+                        style="-fx-background-color: #9b59b6; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 12px;
+                               -fx-cursor: hand;"/>
+                
+                <Button text="🔄 Refresh"
+                        onAction="#handleSearch"
+                        style="-fx-background-color: #95a5a6; 
+                               -fx-text-fill: white; 
+                               -fx-font-size: 12px;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- Employee Table -->
+            <TableView fx:id="employeeTable" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: white;">
+                <columns>
+                    <TableColumn fx:id="colId" 
+                                text="ID" 
+                                prefWidth="60"
+                                style="-fx-alignment: CENTER;"/>
+                    
+                    <TableColumn fx:id="colName" 
+                                text="Full Name" 
+                                prefWidth="200"/>
+                    
+                    <TableColumn fx:id="colUsername" 
+                                text="Username" 
+                                prefWidth="150"/>
+                    
+                    <TableColumn fx:id="colRole" 
+                                text="Role" 
+                                prefWidth="120"
+                                style="-fx-alignment: CENTER;"/>
+                    
+                    <TableColumn fx:id="colBranch" 
+                                text="Branch ID" 
+                                prefWidth="100"
+                                style="-fx-alignment: CENTER;"/>
+                </columns>
+            </TableView>
+
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" 
+              spacing="10"
+              style="-fx-background-color: white; 
+                     -fx-border-color: #e0e0e0; 
+                     -fx-border-width: 1 0 0 0;">
+            <padding>
+                <Insets top="15" right="20" bottom="15" left="20"/>
+            </padding>
+            
+            <Button text="⬅️ Back to Dashboard" 
+                    onAction="#handleBack"
+                    style="-fx-background-color: #95a5a6; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 12px;
+                           -fx-cursor: hand;"/>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <Label text="💡 Select an employee from the table to edit or delete"
+                   style="-fx-font-size: 11px; 
+                          -fx-text-fill: #7f8c8d;"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

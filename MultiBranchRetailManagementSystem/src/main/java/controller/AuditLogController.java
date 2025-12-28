@@ -1,6 +1,5 @@
 package controller;
 
-import dao.AuditLogDAO;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -9,10 +8,12 @@ import javafx.scene.text.Text;
 import com.husam.app.SceneManager;
 import model.AuditLog;
 import model.Employee;
+import dao.AuditLogDAO;
 import util.PermissionManager;
 import util.SessionManager;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AuditLogController {
 
@@ -31,6 +32,13 @@ public class AuditLogController {
 
     @FXML
     public void initialize() {
+
+        // Permission guard
+        if (!PermissionManager.canViewAuditLogs()) {
+            SceneManager.switchScene("/view/DashboardView.fxml", "Dashboard");
+            return;
+        }
+
         setupTableColumns();
         setupFilterComboBox();
         setupInfoLabel();
@@ -38,6 +46,7 @@ public class AuditLogController {
     }
 
     private void setupTableColumns() {
+
         colLogId.setCellValueFactory(new PropertyValueFactory<>("logId"));
         colEmployee.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("employeeRole"));
@@ -48,45 +57,44 @@ public class AuditLogController {
         colAction.setCellFactory(tc -> {
             TableCell<AuditLog, String> cell = new TableCell<>();
             Text text = new Text();
-            cell.setGraphic(text);
-            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
             text.wrappingWidthProperty().bind(colAction.widthProperty());
             text.textProperty().bind(cell.itemProperty());
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.USE_COMPUTED_SIZE);
             return cell;
         });
     }
 
     private void setupFilterComboBox() {
+
         filterComboBox.getItems().addAll(
-            "All Actions",
-            "LOGIN/LOGOUT",
-            "PRODUCTS",
-            "BRANCHES",
-            "EMPLOYEES",
-            "SALES",
-            "REPORTS"
+                "All Actions",
+                "LOGIN/LOGOUT",
+                "PRODUCTS",
+                "BRANCHES",
+                "EMPLOYEES",
+                "SALES",
+                "REPORTS"
         );
         filterComboBox.setValue("All Actions");
-        
-        filterComboBox.setOnAction(e -> handleFilter());
+        filterComboBox.setOnAction(e -> applyFilters());
     }
 
     private void setupInfoLabel() {
+
         Employee user = SessionManager.getCurrentUser();
-        
+
         if (PermissionManager.isAdmin()) {
-            infoLabel.setText("📋 Viewing: All Audit Logs (Admin View)");
-            infoLabel.setStyle("-fx-text-fill: #51cf66; -fx-font-weight: bold;");
+            infoLabel.setText("📋 Viewing: All Audit Logs (Admin)");
         } else if (PermissionManager.isManager()) {
             infoLabel.setText("📋 Viewing: Audit Logs for Branch " + user.getBranchId());
-            infoLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
         } else {
-            infoLabel.setText("📋 Viewing: Your Personal Activity Logs");
-            infoLabel.setStyle("-fx-text-fill: #4dabf7; -fx-font-weight: bold;");
+            infoLabel.setText("📋 Viewing: Your Activity Logs");
         }
     }
 
     private void loadAuditLogs() {
+
         Employee user = SessionManager.getCurrentUser();
         List<AuditLog> logs;
 
@@ -101,59 +109,25 @@ public class AuditLogController {
         auditTable.setItems(FXCollections.observableArrayList(logs));
     }
 
-    @FXML
-    private void handleSearch() {
-        String keyword = searchField.getText().trim();
-        
-        if (keyword.isEmpty()) {
-            loadAuditLogs();
-            return;
-        }
+    private void applyFilters() {
 
-        Employee user = SessionManager.getCurrentUser();
-        List<AuditLog> allResults = auditLogDAO.searchByAction(keyword);
-        List<AuditLog> filteredResults;
-
-        if (PermissionManager.isAdmin()) {
-            filteredResults = allResults;
-        } else if (PermissionManager.isManager()) {
-            int userBranchId = user.getBranchId();
-            filteredResults = allResults.stream()
-                    .filter(log -> {
-                        return true; 
-                    })
-                    .toList();
-        } else {
-            int userId = user.getEmployeeId();
-            filteredResults = allResults.stream()
-                    .filter(log -> log.getEmployeeId() == userId)
-                    .toList();
-        }
-
-        auditTable.setItems(FXCollections.observableArrayList(filteredResults));
-    }
-
-    @FXML
-    private void handleFilter() {
+        String keyword = searchField.getText().trim().toUpperCase();
         String selectedFilter = filterComboBox.getValue();
-        
-        if (selectedFilter.equals("All Actions")) {
-            loadAuditLogs();
-            return;
-        }
 
         Employee user = SessionManager.getCurrentUser();
-        List<AuditLog> allLogs;
+        List<AuditLog> baseLogs;
 
         if (PermissionManager.isAdmin()) {
-            allLogs = auditLogDAO.getAll();
+            baseLogs = auditLogDAO.getAll();
         } else if (PermissionManager.isManager()) {
-            allLogs = auditLogDAO.getByBranchId(user.getBranchId());
+            baseLogs = auditLogDAO.getByBranchId(user.getBranchId());
         } else {
-            allLogs = auditLogDAO.getByEmployeeId(user.getEmployeeId());
+            baseLogs = auditLogDAO.getByEmployeeId(user.getEmployeeId());
         }
 
-        List<AuditLog> filtered = allLogs.stream()
+        List<AuditLog> filtered = baseLogs.stream()
+                .filter(log -> keyword.isEmpty() ||
+                        log.getAction().toUpperCase().contains(keyword))
                 .filter(log -> {
                     String action = log.getAction().toUpperCase();
                     return switch (selectedFilter) {
@@ -166,9 +140,14 @@ public class AuditLogController {
                         default -> true;
                     };
                 })
-                .toList();
+                .collect(Collectors.toList());
 
         auditTable.setItems(FXCollections.observableArrayList(filtered));
+    }
+
+    @FXML
+    private void handleSearch() {
+        applyFilters();
     }
 
     @FXML
@@ -176,8 +155,9 @@ public class AuditLogController {
         searchField.clear();
         filterComboBox.setValue("All Actions");
         loadAuditLogs();
-        showAlert("Refreshed", "Audit logs have been refreshed.", Alert.AlertType.INFORMATION);
+        showAlert("Refreshed", "Audit logs refreshed successfully.", Alert.AlertType.INFORMATION);
     }
+
     @FXML
     private void handleExport() {
         showAlert("Export", "Export feature coming soon!", Alert.AlertType.INFORMATION);

@@ -41,7 +41,7 @@ public class LoginController {
         if (employee != null) {
             SessionManager.setCurrentUser(employee);
             
-            auditService.logLogin(username);
+            auditService.logLogin();
             
             SceneManager.switchScene("/view/DashboardView.fxml", "Dashboard");
         } else {

@@ -9,50 +9,67 @@ import java.util.List;
 
 public class AuditLogDAO {
 
-    public void insert(int employeeId, String action) {
-        String sql = """
+    public boolean insert(int employeeId, String action) {
+
+        String checkSql = """
+            SELECT 1
+            FROM employees
+            WHERE employee_id = ?
+        """;
+
+        String insertSql = """
             INSERT INTO audit_logs (employee_id, action)
             VALUES (?, ?)
         """;
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection()) {
 
-            stmt.setInt(1, employeeId);
-            stmt.setString(2, action);
-            stmt.executeUpdate();
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, employeeId);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (!rs.next()) {
+                    System.out.println("❌ Audit log failed: employee not found");
+                    return false;
+                }
+            }
+
+            try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+                stmt.setInt(1, employeeId);
+                stmt.setString(2, action);
+                stmt.executeUpdate();
+                return true;
+            }
 
         } catch (SQLException e) {
-            System.err.println("Failed to insert audit log: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
     }
 
+    private static final String BASE_QUERY = """
+        SELECT al.log_id,
+               al.employee_id,
+               e.full_name,
+               e.role,
+               al.action,
+               al.action_time
+        FROM audit_logs al
+        JOIN employees e ON al.employee_id = e.employee_id
+    """;
+
     public List<AuditLog> getAll() {
+
         List<AuditLog> logs = new ArrayList<>();
 
-        String sql = """
-            SELECT al.log_id, al.employee_id, e.full_name, e.role, 
-                   al.action, al.action_time
-            FROM audit_logs al
-            JOIN employees e ON al.employee_id = e.employee_id
-            ORDER BY al.action_time DESC
-        """;
+        String sql = BASE_QUERY + " ORDER BY al.action_time DESC";
 
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                AuditLog log = new AuditLog(
-                        rs.getInt("log_id"),
-                        rs.getInt("employee_id"),
-                        rs.getString("full_name"),
-                        rs.getString("role"),
-                        rs.getString("action"),
-                        rs.getTimestamp("action_time")
-                );
-                logs.add(log);
+                logs.add(mapAuditLog(rs));
             }
 
         } catch (SQLException e) {
@@ -61,15 +78,11 @@ public class AuditLogDAO {
 
         return logs;
     }
-
     public List<AuditLog> getByEmployeeId(int employeeId) {
+
         List<AuditLog> logs = new ArrayList<>();
 
-        String sql = """
-            SELECT al.log_id, al.employee_id, e.full_name, e.role, 
-                   al.action, al.action_time
-            FROM audit_logs al
-            JOIN employees e ON al.employee_id = e.employee_id
+        String sql = BASE_QUERY + """
             WHERE al.employee_id = ?
             ORDER BY al.action_time DESC
         """;
@@ -81,15 +94,7 @@ public class AuditLogDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                AuditLog log = new AuditLog(
-                        rs.getInt("log_id"),
-                        rs.getInt("employee_id"),
-                        rs.getString("full_name"),
-                        rs.getString("role"),
-                        rs.getString("action"),
-                        rs.getTimestamp("action_time")
-                );
-                logs.add(log);
+                logs.add(mapAuditLog(rs));
             }
 
         } catch (SQLException e) {
@@ -98,15 +103,11 @@ public class AuditLogDAO {
 
         return logs;
     }
-
     public List<AuditLog> getByBranchId(int branchId) {
+
         List<AuditLog> logs = new ArrayList<>();
 
-        String sql = """
-            SELECT al.log_id, al.employee_id, e.full_name, e.role, 
-                   al.action, al.action_time
-            FROM audit_logs al
-            JOIN employees e ON al.employee_id = e.employee_id
+        String sql = BASE_QUERY + """
             WHERE e.branch_id = ?
             ORDER BY al.action_time DESC
         """;
@@ -118,15 +119,7 @@ public class AuditLogDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                AuditLog log = new AuditLog(
-                        rs.getInt("log_id"),
-                        rs.getInt("employee_id"),
-                        rs.getString("full_name"),
-                        rs.getString("role"),
-                        rs.getString("action"),
-                        rs.getTimestamp("action_time")
-                );
-                logs.add(log);
+                logs.add(mapAuditLog(rs));
             }
 
         } catch (SQLException e) {
@@ -137,13 +130,10 @@ public class AuditLogDAO {
     }
 
     public List<AuditLog> searchByAction(String keyword) {
+
         List<AuditLog> logs = new ArrayList<>();
 
-        String sql = """
-            SELECT al.log_id, al.employee_id, e.full_name, e.role, 
-                   al.action, al.action_time
-            FROM audit_logs al
-            JOIN employees e ON al.employee_id = e.employee_id
+        String sql = BASE_QUERY + """
             WHERE al.action ILIKE ?
             ORDER BY al.action_time DESC
         """;
@@ -155,15 +145,7 @@ public class AuditLogDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                AuditLog log = new AuditLog(
-                        rs.getInt("log_id"),
-                        rs.getInt("employee_id"),
-                        rs.getString("full_name"),
-                        rs.getString("role"),
-                        rs.getString("action"),
-                        rs.getTimestamp("action_time")
-                );
-                logs.add(log);
+                logs.add(mapAuditLog(rs));
             }
 
         } catch (SQLException e) {
@@ -172,15 +154,11 @@ public class AuditLogDAO {
 
         return logs;
     }
-
     public List<AuditLog> getRecent(int limit) {
+
         List<AuditLog> logs = new ArrayList<>();
 
-        String sql = """
-            SELECT al.log_id, al.employee_id, e.full_name, e.role, 
-                   al.action, al.action_time
-            FROM audit_logs al
-            JOIN employees e ON al.employee_id = e.employee_id
+        String sql = BASE_QUERY + """
             ORDER BY al.action_time DESC
             LIMIT ?
         """;
@@ -192,15 +170,7 @@ public class AuditLogDAO {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                AuditLog log = new AuditLog(
-                        rs.getInt("log_id"),
-                        rs.getInt("employee_id"),
-                        rs.getString("full_name"),
-                        rs.getString("role"),
-                        rs.getString("action"),
-                        rs.getTimestamp("action_time")
-                );
-                logs.add(log);
+                logs.add(mapAuditLog(rs));
             }
 
         } catch (SQLException e) {
@@ -208,5 +178,17 @@ public class AuditLogDAO {
         }
 
         return logs;
+    }
+
+    private AuditLog mapAuditLog(ResultSet rs) throws SQLException {
+
+        return new AuditLog(
+                rs.getInt("log_id"),
+                rs.getInt("employee_id"),
+                rs.getString("full_name"),
+                rs.getString("role"),
+                rs.getString("action"),
+                rs.getTimestamp("action_time")
+        );
     }
 }
