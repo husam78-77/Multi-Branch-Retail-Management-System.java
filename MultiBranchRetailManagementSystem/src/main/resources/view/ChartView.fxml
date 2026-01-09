@@ -7,7 +7,9 @@
 <BorderPane xmlns="http://javafx.com/javafx/8"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="controller.ChartController"
-            style="-fx-background-color: #f5f5f5;">
+            style="-fx-background-color: #f5f5f5;"
+            minHeight="600"
+            minWidth="800">
 
     <top>
         <VBox style="-fx-background-color: white; 
@@ -97,125 +99,130 @@
     </top>
 
     <center>
-        <VBox alignment="CENTER" spacing="15">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
-            
-            <!-- Chart Container Card -->
-            <VBox style="-fx-background-color: white; 
-                        -fx-background-radius: 10;
-                        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
-                  VBox.vgrow="ALWAYS"
-                  maxWidth="1200">
+        <ScrollPane fitToWidth="true" fitToHeight="true" 
+                    style="-fx-background-color: transparent; 
+                           -fx-background: transparent;">
+            <VBox alignment="CENTER" spacing="15">
                 <padding>
-                    <Insets top="25" right="25" bottom="25" left="25"/>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
                 </padding>
                 
-                <!-- Chart Title -->
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <VBox.margin>
-                        <Insets bottom="15"/>
-                    </VBox.margin>
+                <!-- Chart Container Card -->
+                <VBox style="-fx-background-color: white; 
+                            -fx-background-radius: 10;
+                            -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);"
+                      maxWidth="1200"
+                      minHeight="500">
+                    <padding>
+                        <Insets top="25" right="25" bottom="25" left="25"/>
+                    </padding>
                     
-                    <Label text="Sales Performance by Branch"
-                           style="-fx-font-size: 16px; 
-                                  -fx-font-weight: bold; 
-                                  -fx-text-fill: #2c3e50;"/>
-                    
-                    <Region HBox.hgrow="ALWAYS"/>
-                    
-                    <Label fx:id="chartDateLabel"
-                           text="Updated: Today"
-                           style="-fx-font-size: 11px; 
-                                  -fx-text-fill: #95a5a6;"/>
-                </HBox>
-                
-                <Separator/>
-                
-                <!-- Chart Display Area -->
-                <StackPane fx:id="chartContainer"
-                          VBox.vgrow="ALWAYS"
-                          minHeight="400"
-                          style="-fx-background-color: #fafafa; 
-                                 -fx-background-radius: 5;">
-                    <VBox.margin>
-                        <Insets top="15"/>
-                    </VBox.margin>
-                    
-                    <!-- Empty State (shown when no data) -->
-                    <VBox fx:id="emptyState" 
-                          alignment="CENTER" 
-                          spacing="15"
-                          visible="false">
-                        <Label text="📊" style="-fx-font-size: 48px;"/>
-                        <Label text="No Data Available"
-                               style="-fx-font-size: 18px; 
+                    <!-- Chart Title -->
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <VBox.margin>
+                            <Insets bottom="15"/>
+                        </VBox.margin>
+                        
+                        <Label text="Sales Performance by Branch"
+                               style="-fx-font-size: 16px; 
                                       -fx-font-weight: bold; 
-                                      -fx-text-fill: #7f8c8d;"/>
-                        <Label text="Sales data will appear here once available"
-                               style="-fx-font-size: 13px; 
+                                      -fx-text-fill: #2c3e50;"/>
+                        
+                        <Region HBox.hgrow="ALWAYS"/>
+                        
+                        <Label fx:id="chartDateLabel"
+                               text="Updated: Today"
+                               style="-fx-font-size: 11px; 
                                       -fx-text-fill: #95a5a6;"/>
-                    </VBox>
-                </StackPane>
-                
-                <!-- Chart Legend/Info -->
-                <HBox spacing="20" alignment="CENTER">
-                    <VBox.margin>
-                        <Insets top="15"/>
-                    </VBox.margin>
+                    </HBox>
                     
-                    <VBox alignment="CENTER" spacing="3"
-                          style="-fx-background-color: #e8f5e9; 
-                                 -fx-background-radius: 5; 
-                                 -fx-padding: 10 20 10 20;">
-                        <Label text="Total Sales"
-                               style="-fx-font-size: 11px; 
-                                      -fx-text-fill: #2e7d32;
-                                      -fx-font-weight: 600;"/>
-                        <Label fx:id="totalSalesLabel" 
-                               text="RM 0.00"
-                               style="-fx-font-size: 16px; 
-                                      -fx-font-weight: bold; 
-                                      -fx-text-fill: #1b5e20;"/>
-                    </VBox>
+                    <Separator/>
                     
-                    <VBox alignment="CENTER" spacing="3"
-                          style="-fx-background-color: #e3f2fd; 
-                                 -fx-background-radius: 5; 
-                                 -fx-padding: 10 20 10 20;">
-                        <Label text="Average per Branch"
-                               style="-fx-font-size: 11px; 
-                                      -fx-text-fill: #1565c0;
-                                      -fx-font-weight: 600;"/>
-                        <Label fx:id="avgSalesLabel" 
-                               text="RM 0.00"
-                               style="-fx-font-size: 16px; 
-                                      -fx-font-weight: bold; 
-                                      -fx-text-fill: #0d47a1;"/>
-                    </VBox>
+                    <!-- Chart Display Area -->
+                    <StackPane fx:id="chartContainer"
+                              minHeight="350"
+                              prefHeight="400"
+                              style="-fx-background-color: #fafafa; 
+                                     -fx-background-radius: 5;">
+                        <VBox.margin>
+                            <Insets top="15"/>
+                        </VBox.margin>
+                        
+                        <!-- Empty State (shown when no data) -->
+                        <VBox fx:id="emptyState" 
+                              alignment="CENTER" 
+                              spacing="15"
+                              visible="false">
+                            <Label text="📊" style="-fx-font-size: 48px;"/>
+                            <Label text="No Data Available"
+                                   style="-fx-font-size: 18px; 
+                                          -fx-font-weight: bold; 
+                                          -fx-text-fill: #7f8c8d;"/>
+                            <Label text="Sales data will appear here once available"
+                                   style="-fx-font-size: 13px; 
+                                          -fx-text-fill: #95a5a6;"/>
+                        </VBox>
+                    </StackPane>
                     
-                    <VBox alignment="CENTER" spacing="3"
-                          style="-fx-background-color: #fff3e0; 
-                                 -fx-background-radius: 5; 
-                                 -fx-padding: 10 20 10 20;">
-                        <Label text="Top Branch"
-                               style="-fx-font-size: 11px; 
-                                      -fx-text-fill: #e65100;
-                                      -fx-font-weight: 600;"/>
-                        <Label fx:id="topBranchLabel" 
-                               text="-"
-                               style="-fx-font-size: 16px; 
-                                      -fx-font-weight: bold; 
-                                      -fx-text-fill: #bf360c;"/>
-                    </VBox>
-                </HBox>
+                    <!-- Chart Legend/Info -->
+                    <HBox spacing="20" alignment="CENTER">
+                        <VBox.margin>
+                            <Insets top="15"/>
+                        </VBox.margin>
+                        
+                        <VBox alignment="CENTER" spacing="3"
+                              style="-fx-background-color: #e8f5e9; 
+                                     -fx-background-radius: 5; 
+                                     -fx-padding: 10 20 10 20;">
+                            <Label text="Total Sales"
+                                   style="-fx-font-size: 11px; 
+                                          -fx-text-fill: #2e7d32;
+                                          -fx-font-weight: 600;"/>
+                            <Label fx:id="totalSalesLabel" 
+                                   text="RM 0.00"
+                                   style="-fx-font-size: 16px; 
+                                          -fx-font-weight: bold; 
+                                          -fx-text-fill: #1b5e20;"/>
+                        </VBox>
+                        
+                        <VBox alignment="CENTER" spacing="3"
+                              style="-fx-background-color: #e3f2fd; 
+                                     -fx-background-radius: 5; 
+                                     -fx-padding: 10 20 10 20;">
+                            <Label text="Average per Branch"
+                                   style="-fx-font-size: 11px; 
+                                          -fx-text-fill: #1565c0;
+                                          -fx-font-weight: 600;"/>
+                            <Label fx:id="avgSalesLabel" 
+                                   text="RM 0.00"
+                                   style="-fx-font-size: 16px; 
+                                          -fx-font-weight: bold; 
+                                          -fx-text-fill: #0d47a1;"/>
+                        </VBox>
+                        
+                        <VBox alignment="CENTER" spacing="3"
+                              style="-fx-background-color: #fff3e0; 
+                                     -fx-background-radius: 5; 
+                                     -fx-padding: 10 20 10 20;">
+                            <Label text="Top Branch"
+                                   style="-fx-font-size: 11px; 
+                                          -fx-text-fill: #e65100;
+                                          -fx-font-weight: 600;"/>
+                            <Label fx:id="topBranchLabel" 
+                                   text="-"
+                                   style="-fx-font-size: 16px; 
+                                          -fx-font-weight: bold; 
+                                          -fx-text-fill: #bf360c;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
             </VBox>
-        </VBox>
+        </ScrollPane>
     </center>
 
     <bottom>
-        <HBox alignment="CENTER" 
+        <HBox alignment="CENTER_LEFT" 
+              spacing="10"
               style="-fx-background-color: white; 
                      -fx-border-color: #e0e0e0; 
                      -fx-border-width: 1 0 0 0;">
@@ -223,27 +230,25 @@
                 <Insets top="15" right="20" bottom="15" left="20"/>
             </padding>
             
-            <HBox spacing="10">
-                <Button text="🖨️ Print Chart" 
-                        onAction="#handlePrint"
-                        style="-fx-background-color: #3498db; 
-                               -fx-text-fill: white; 
-                               -fx-font-size: 13px; 
-                               -fx-font-weight: 600; 
-                               -fx-background-radius: 5; 
-                               -fx-padding: 10 20 10 20;
-                               -fx-cursor: hand;"/>
-                
-                <Button text="💾 Export PNG" 
-                        onAction="#handleExport"
-                        style="-fx-background-color: #9b59b6; 
-                               -fx-text-fill: white; 
-                               -fx-font-size: 13px; 
-                               -fx-font-weight: 600; 
-                               -fx-background-radius: 5; 
-                               -fx-padding: 10 20 10 20;
-                               -fx-cursor: hand;"/>
-            </HBox>
+            <Button text="🖨️ Print Chart" 
+                    onAction="#handlePrint"
+                    style="-fx-background-color: #3498db; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 13px; 
+                           -fx-font-weight: 600; 
+                           -fx-background-radius: 5; 
+                           -fx-padding: 10 20 10 20;
+                           -fx-cursor: hand;"/>
+            
+            <Button text="💾 Export PNG" 
+                    onAction="#handleExport"
+                    style="-fx-background-color: #9b59b6; 
+                           -fx-text-fill: white; 
+                           -fx-font-size: 13px; 
+                           -fx-font-weight: 600; 
+                           -fx-background-radius: 5; 
+                           -fx-padding: 10 20 10 20;
+                           -fx-cursor: hand;"/>
             
             <Region HBox.hgrow="ALWAYS"/>
             

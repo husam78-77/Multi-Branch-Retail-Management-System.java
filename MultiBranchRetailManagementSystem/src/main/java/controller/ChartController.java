@@ -3,6 +3,7 @@ package controller;
 import dao.ReportDAO;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -37,6 +38,18 @@ public class ChartController {
 
     private final ReportDAO reportDAO = new ReportDAO();
     private List<BranchSalesReport> salesData;
+
+    // 🎨 Color palette for different branches
+    private final String[] CHART_COLORS = {
+        "#3498db",  // Blue
+        "#e74c3c",  // Red
+        "#2ecc71",  // Green
+        "#f39c12",  // Orange
+        "#9b59b6",  // Purple
+        "#1abc9c",  // Turquoise
+        "#34495e",  // Dark Gray
+        "#e67e22"   // Carrot Orange
+    };
 
     @FXML
     public void initialize() {
@@ -118,19 +131,12 @@ public class ChartController {
     }
 
     private void updateButtonStyles() {
-        if (barChartBtn.isSelected()) {
-            barChartBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-            pieChartBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-            lineChartBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-        } else if (pieChartBtn.isSelected()) {
-            barChartBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-            pieChartBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-            lineChartBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-        } else if (lineChartBtn.isSelected()) {
-            barChartBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-            pieChartBtn.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-            lineChartBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;");
-        }
+        String activeStyle = "-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;";
+        String inactiveStyle = "-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: 600; -fx-background-radius: 5; -fx-padding: 8 15 8 15; -fx-cursor: hand;";
+        
+        barChartBtn.setStyle(barChartBtn.isSelected() ? activeStyle : inactiveStyle);
+        pieChartBtn.setStyle(pieChartBtn.isSelected() ? activeStyle : inactiveStyle);
+        lineChartBtn.setStyle(lineChartBtn.isSelected() ? activeStyle : inactiveStyle);
     }
 
     private void loadBarChart() {
@@ -140,46 +146,84 @@ public class ChartController {
                 return;
             }
 
-            // Create axes
+            // ✅ Create axes with VISIBLE styling
             CategoryAxis xAxis = new CategoryAxis();
-            xAxis.setLabel("Branch");
+            xAxis.setLabel("Branch Name");
+            xAxis.setTickLabelFill(javafx.scene.paint.Color.BLACK);
+            xAxis.setTickLabelRotation(0);
+            xAxis.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-tick-label-fill: #2c3e50;");
 
             NumberAxis yAxis = new NumberAxis();
             yAxis.setLabel("Total Sales (RM)");
+            yAxis.setTickLabelFill(javafx.scene.paint.Color.BLACK);
+            yAxis.setAutoRanging(true);
+            yAxis.setForceZeroInRange(false);
+            yAxis.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-tick-label-fill: #2c3e50;");
 
             // Create bar chart
             BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
             barChart.setTitle("Total Sales per Branch");
             barChart.setLegendVisible(false);
+            barChart.setBarGap(5);
+            barChart.setCategoryGap(20);
+            barChart.setAnimated(false);
 
-            // Create data series
+            // Set chart size
+            barChart.setPrefWidth(900);
+            barChart.setPrefHeight(450);
+            barChart.setMinHeight(400);
+
+            // ✅ ONE series with ALL branches
             XYChart.Series<String, Number> series = new XYChart.Series<>();
             series.setName("Sales");
 
-            // Add data to series
             for (BranchSalesReport report : salesData) {
-                series.getData().add(
-                    new XYChart.Data<>(report.getBranchName(), report.getTotalSales())
+                XYChart.Data<String, Number> data = new XYChart.Data<>(
+                    report.getBranchName(), 
+                    report.getTotalSales()
                 );
+                series.getData().add(data);
             }
 
-            // Add series to chart
             barChart.getData().add(series);
 
-            // Style the chart
-            barChart.setPrefWidth(700);
-            barChart.setPrefHeight(400);
-            barChart.setStyle("-fx-background-color: transparent;");
-
-            // Add chart to container
+            // Clear container and add chart
             chartContainer.getChildren().clear();
             chartContainer.getChildren().add(barChart);
             showEmptyState(false);
+
+            // Apply colors after render
+            applyBarChartColors(barChart);
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error loading bar chart: " + e.getMessage());
         }
+    }
+
+    private void applyBarChartColors(BarChart<String, Number> chart) {
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Thread.sleep(200); // Give chart time to render
+                
+                for (XYChart.Series<String, Number> series : chart.getData()) {
+                    int colorIndex = 0;
+                    for (XYChart.Data<String, Number> data : series.getData()) {
+                        Node bar = data.getNode();
+                        if (bar != null && colorIndex < CHART_COLORS.length) {
+                            // Force color by using !important-like approach with lookup
+                            bar.setStyle("-fx-bar-fill: " + CHART_COLORS[colorIndex] + "; -fx-background-color: " + CHART_COLORS[colorIndex] + ";");
+                            colorIndex++;
+                        }
+                    }
+                }
+                
+                // Force chart to update
+                chart.layout();
+            } catch (Exception e) {
+                System.err.println("Error applying bar colors: " + e.getMessage());
+            }
+        });
     }
 
     private void loadPieChart() {
@@ -192,31 +236,67 @@ public class ChartController {
             // Create pie chart
             PieChart pieChart = new PieChart();
             pieChart.setTitle("Sales Distribution by Branch");
+            pieChart.setLabelsVisible(true);
+            pieChart.setStartAngle(90);
+            pieChart.setAnimated(false);
+            pieChart.setLegendVisible(true);
 
-            // Add data to pie chart
+            // Set chart size
+            pieChart.setPrefWidth(900);
+            pieChart.setPrefHeight(450);
+
+            // Calculate total for percentages
+            double totalSales = salesData.stream()
+                    .mapToDouble(BranchSalesReport::getTotalSales)
+                    .sum();
+
+            // Add data with percentages
             for (BranchSalesReport report : salesData) {
-                PieChart.Data slice = new PieChart.Data(
+                double percentage = (report.getTotalSales() / totalSales) * 100;
+                
+                String label = String.format("%s\nRM %.2f (%.1f%%)", 
                     report.getBranchName(), 
-                    report.getTotalSales()
-                );
+                    report.getTotalSales(),
+                    percentage);
+                
+                PieChart.Data slice = new PieChart.Data(label, report.getTotalSales());
                 pieChart.getData().add(slice);
             }
 
-            // Style the chart
-            pieChart.setPrefWidth(700);
-            pieChart.setPrefHeight(400);
-            pieChart.setStyle("-fx-background-color: transparent;");
-            pieChart.setLegendVisible(true);
-
-            // Add chart to container
+            // Clear container and add chart
             chartContainer.getChildren().clear();
             chartContainer.getChildren().add(pieChart);
             showEmptyState(false);
+
+            // Apply colors
+            applyPieChartColors(pieChart);
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error loading pie chart: " + e.getMessage());
         }
+    }
+
+    private void applyPieChartColors(PieChart chart) {
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Thread.sleep(200);
+                
+                int i = 0;
+                for (PieChart.Data data : chart.getData()) {
+                    if (i < CHART_COLORS.length && data.getNode() != null) {
+                        // Apply color using the correct CSS property
+                        data.getNode().setStyle("-fx-pie-color: " + CHART_COLORS[i] + "; -fx-background-color: " + CHART_COLORS[i] + ";");
+                        i++;
+                    }
+                }
+                
+                // Force chart to update
+                chart.layout();
+            } catch (Exception e) {
+                System.err.println("Error applying pie colors: " + e.getMessage());
+            }
+        });
     }
 
     private void loadLineChart() {
@@ -226,47 +306,93 @@ public class ChartController {
                 return;
             }
 
-            // Create axes
+            // ✅ Create axes with VISIBLE styling
             CategoryAxis xAxis = new CategoryAxis();
-            xAxis.setLabel("Branch");
+            xAxis.setLabel("Branch Name");
+            xAxis.setTickLabelFill(javafx.scene.paint.Color.BLACK);
+            xAxis.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-tick-label-fill: #2c3e50;");
 
             NumberAxis yAxis = new NumberAxis();
             yAxis.setLabel("Total Sales (RM)");
+            yAxis.setTickLabelFill(javafx.scene.paint.Color.BLACK);
+            yAxis.setAutoRanging(true);
+            yAxis.setForceZeroInRange(false);
+            yAxis.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-tick-label-fill: #2c3e50;");
 
             // Create line chart
             LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
             lineChart.setTitle("Sales Trend by Branch");
+            lineChart.setCreateSymbols(true);
             lineChart.setLegendVisible(false);
+            lineChart.setAnimated(false);
 
-            // Create data series
+            // Set chart size
+            lineChart.setPrefWidth(900);
+            lineChart.setPrefHeight(450);
+            lineChart.setMinHeight(400);
+
+            // ✅ ONE series with ALL branches
             XYChart.Series<String, Number> series = new XYChart.Series<>();
             series.setName("Sales");
 
-            // Add data to series
             for (BranchSalesReport report : salesData) {
-                series.getData().add(
-                    new XYChart.Data<>(report.getBranchName(), report.getTotalSales())
+                XYChart.Data<String, Number> data = new XYChart.Data<>(
+                    report.getBranchName(), 
+                    report.getTotalSales()
                 );
+                series.getData().add(data);
             }
 
-            // Add series to chart
             lineChart.getData().add(series);
 
-            // Style the chart
-            lineChart.setPrefWidth(700);
-            lineChart.setPrefHeight(400);
-            lineChart.setStyle("-fx-background-color: transparent;");
-            lineChart.setCreateSymbols(true);
-
-            // Add chart to container
+            // Clear container and add chart
             chartContainer.getChildren().clear();
             chartContainer.getChildren().add(lineChart);
             showEmptyState(false);
+
+            // Apply colors after render
+            applyLineChartColors(lineChart);
 
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error loading line chart: " + e.getMessage());
         }
+    }
+
+    private void applyLineChartColors(LineChart<String, Number> chart) {
+        javafx.application.Platform.runLater(() -> {
+            try {
+                Thread.sleep(200);
+                
+                for (XYChart.Series<String, Number> series : chart.getData()) {
+                    // Style the connecting line
+                    if (series.getNode() != null) {
+                        series.getNode().setStyle("-fx-stroke: " + CHART_COLORS[0] + "; -fx-stroke-width: 3px;");
+                    }
+                    
+                    // Style each symbol with different color
+                    int colorIndex = 0;
+                    for (XYChart.Data<String, Number> data : series.getData()) {
+                        Node symbol = data.getNode();
+                        if (symbol != null && colorIndex < CHART_COLORS.length) {
+                            symbol.setStyle(
+                                "-fx-background-color: " + CHART_COLORS[colorIndex] + ", white;" +
+                                "-fx-background-insets: 0, 2;" +
+                                "-fx-background-radius: 10px;" +
+                                "-fx-padding: 8px;" +
+                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"
+                            );
+                            colorIndex++;
+                        }
+                    }
+                }
+                
+                // Force chart to update
+                chart.layout();
+            } catch (Exception e) {
+                System.err.println("Error applying line colors: " + e.getMessage());
+            }
+        });
     }
 
     @FXML
@@ -275,7 +401,7 @@ public class ChartController {
         updateStatistics();
         updateDateTime();
         
-        // Reload the current chart type
+        // Reload current chart
         if (barChartBtn.isSelected()) {
             loadBarChart();
         } else if (pieChartBtn.isSelected()) {
@@ -312,12 +438,8 @@ public class ChartController {
             File file = fileChooser.showSaveDialog(chartContainer.getScene().getWindow());
             
             if (file != null) {
-                // Take snapshot of chart container
                 WritableImage image = chartContainer.snapshot(null, null);
-                
-                // Save to file
                 ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-                
                 showInfoAlert("Chart exported successfully to:\n" + file.getAbsolutePath());
             }
         } catch (Exception e) {

@@ -10,6 +10,12 @@
             style="-fx-background-color: #f5f5f5;">
 
     <top>
+    <Label fx:id="userInfoLabel"
+       text=""
+       style="-fx-font-size: 13px;
+              -fx-font-weight: bold;
+              -fx-text-fill: #555;" />
+
         <VBox style="-fx-background-color: white; 
                      -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
             <padding>

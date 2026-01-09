@@ -187,7 +187,7 @@ public class EmployeeController {
         
         nameField.setText(employee.getFullName());
         usernameField.setText(employee.getUsername());
-        passwordField.clear(); // Don't show password
+        passwordField.clear(); 
         
         // Set role
         roleComboBox.setValue(employee.getRole());
@@ -250,6 +250,9 @@ public class EmployeeController {
                     branchId,
                     false
             );
+            
+            // Set password
+            employee.setPassword(passwordField.getText().trim());
 
             // Add through service
             employeeService.addEmployee(employee);

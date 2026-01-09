@@ -85,7 +85,7 @@ public class EmployeeDAO {
 
             stmt.setString(1, employee.getFullName());
             stmt.setString(2, employee.getUsername());
-            stmt.setString(3, "password123"); // default password
+            stmt.setString(3, employee.getPassword());
             stmt.setString(4, employee.getRole());
             stmt.setInt(5, employee.getBranchId());
 
@@ -101,7 +101,6 @@ public class EmployeeDAO {
     /* ===================== UPDATE ===================== */
     public boolean update(Employee employee) {
 
-        // 🔒 Protect Admin
         if ("ADMIN".equals(employee.getRole()) && employee.getBranchId() != 1) {
             System.out.println("❌ Admin must stay in Main Branch");
             return false;

@@ -20,7 +20,9 @@ import com.husam.app.SceneManager;
 import java.sql.Connection;
 
 public class SalesController {
-
+	
+	private final SaleDAO saleDAO = new SaleDAO();
+	private final SaleDetailDAO saleDetailDAO = new SaleDetailDAO();
     @FXML private ComboBox<Product> productComboBox;
     @FXML private TextField quantityField;
 
@@ -109,55 +111,47 @@ public class SalesController {
         quantityField.clear();
     }
 
-    @FXML
-    private void handleConfirmSale() {
+@FXML
+public void handleConfirmSale() {
 
-        if (cart.isEmpty()) {
-            showAlert("Cart is empty.");
+    if (cart.isEmpty()) {
+        showAlert("Cart is empty.");
+        return;
+    }
+
+    int branchId = SessionManager.getCurrentUser().getBranchId();
+    int employeeId = SessionManager.getCurrentUser().getEmployeeId();
+
+    try (Connection conn = DBConnection.getConnection()) {
+
+        conn.setAutoCommit(false);
+
+        int saleId = saleDAO.createSale(conn, branchId, employeeId);
+        if (saleId == -1) {
+            conn.rollback();
+            showAlert("Failed to create sale.");
             return;
         }
 
-        int branchId = SessionManager.getCurrentUser().getBranchId();
-        int employeeId = SessionManager.getCurrentUser().getEmployeeId();
+        double total = 0;
 
-        SaleDAO saleDAO = new SaleDAO();
-        SaleDetailDAO detailDAO = new SaleDetailDAO();
-
-        try (Connection conn = DBConnection.getConnection()) {
-
-            conn.setAutoCommit(false);
-
-            int saleId = saleDAO.createSale(branchId, employeeId);
-            if (saleId == -1) {
-                conn.rollback();
-                showAlert("Failed to create sale.");
-                return;
-            }
-
-            double total = 0;
-            for (SaleItem item : cart) {
-                total += detailDAO.insertDetail(conn, saleId, item);
-            }
-
-            saleDAO.updateTotal(saleId, total);
-            conn.commit();
-
-            PDFGenerator.generateInvoice(
-                    saleId,
-                    SessionManager.getCurrentUser().getFullName(),
-                    cart,
-                    total
-            );
-
-            cart.clear();
-            updateTotal();
-            showInfo("Sale completed successfully ✔");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Sale failed. Transaction rolled back.");
+        for (SaleItem item : cart) {
+            total += saleDetailDAO.insertDetail(conn, saleId, item);
         }
+
+        saleDAO.updateTotal(conn, saleId, total);
+
+        conn.commit();
+
+        showInfo("Sale completed successfully.");
+        cart.clear();
+        updateTotal();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        showAlert("Error: " + e.getMessage());
     }
+}
 
     @FXML
     private void handleClearCart() {

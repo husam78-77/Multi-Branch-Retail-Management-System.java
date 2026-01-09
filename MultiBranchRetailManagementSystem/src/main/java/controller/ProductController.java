@@ -31,6 +31,7 @@ public class ProductController {
     @FXML private TextField nameField;
     @FXML private TextField categoryField;
     @FXML private TextField priceField;
+    @FXML private TextField quantityField;  // ✅ Added quantity field
     @FXML private ComboBox<Branch> branchComboBox;
 
     @FXML private Label userInfoLabel;
@@ -72,7 +73,6 @@ public class ProductController {
         colPrice.setCellValueFactory(d ->
                 new SimpleDoubleProperty(d.getValue().getPrice()).asObject());
 
-        // ✅ Read-only stock
         colQuantity.setCellValueFactory(d ->
                 new SimpleIntegerProperty(d.getValue().getQuantity()).asObject());
 
@@ -136,6 +136,7 @@ public class ProductController {
                         nameField.setText(selected.getProductName());
                         categoryField.setText(selected.getCategory());
                         priceField.setText(String.valueOf(selected.getPrice()));
+                        quantityField.setText(String.valueOf(selected.getQuantity()));  // ✅ Load quantity
 
                         if (PermissionManager.isAdmin()) {
                             branchComboBox.getItems().forEach(branch -> {
@@ -187,7 +188,8 @@ public class ProductController {
         try {
             if (nameField.getText().isBlank() ||
                 categoryField.getText().isBlank() ||
-                priceField.getText().isBlank()) {
+                priceField.getText().isBlank() ||
+                quantityField.getText().isBlank()) {  // ✅ Validate quantity
 
                 showAlert("Validation Error",
                         "Please fill all required fields.",
@@ -216,7 +218,7 @@ public class ProductController {
                     categoryField.getText().trim(),
                     Double.parseDouble(priceField.getText().trim()),
                     0,      // cost
-                    0,      // quantity always starts at 0
+                    Integer.parseInt(quantityField.getText().trim()),  // ✅ Use quantity from form
                     branchId
             );
 
@@ -226,7 +228,7 @@ public class ProductController {
             clearFields();
 
         } catch (NumberFormatException e) {
-            showAlert("Validation Error", "Invalid price format.", Alert.AlertType.WARNING);
+            showAlert("Validation Error", "Invalid price or quantity format.", Alert.AlertType.WARNING);
         } catch (Exception e) {
             showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -248,7 +250,8 @@ public class ProductController {
         try {
             if (nameField.getText().isBlank() ||
                 categoryField.getText().isBlank() ||
-                priceField.getText().isBlank()) {
+                priceField.getText().isBlank() ||
+                quantityField.getText().isBlank()) {  // ✅ Validate quantity
 
                 showAlert("Validation Error",
                         "Please fill all required fields.",
@@ -285,7 +288,7 @@ public class ProductController {
                     categoryField.getText().trim(),
                     Double.parseDouble(priceField.getText().trim()),
                     selected.getCost(),
-                    selected.getQuantity(), // 🔒 quantity unchanged
+                    Integer.parseInt(quantityField.getText().trim()),  // ✅ Use NEW quantity from form
                     branchId,
                     false
             );
@@ -296,7 +299,7 @@ public class ProductController {
             clearFields();
 
         } catch (NumberFormatException e) {
-            showAlert("Validation Error", "Invalid price format.", Alert.AlertType.WARNING);
+            showAlert("Validation Error", "Invalid price or quantity format.", Alert.AlertType.WARNING);
         } catch (Exception e) {
             showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -344,6 +347,7 @@ public class ProductController {
         nameField.clear();
         categoryField.clear();
         priceField.clear();
+        quantityField.clear();  // ✅ Clear quantity field
         branchComboBox.setValue(null);
         productTable.getSelectionModel().clearSelection();
     }
