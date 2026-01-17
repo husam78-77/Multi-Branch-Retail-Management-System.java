@@ -204,22 +204,22 @@ public class ChartController {
     private void applyBarChartColors(BarChart<String, Number> chart) {
         javafx.application.Platform.runLater(() -> {
             try {
-                Thread.sleep(200); // Give chart time to render
+                Thread.sleep(300); // Increased delay for better rendering
                 
                 for (XYChart.Series<String, Number> series : chart.getData()) {
                     int colorIndex = 0;
                     for (XYChart.Data<String, Number> data : series.getData()) {
                         Node bar = data.getNode();
                         if (bar != null && colorIndex < CHART_COLORS.length) {
-                            // Force color by using !important-like approach with lookup
-                            bar.setStyle("-fx-bar-fill: " + CHART_COLORS[colorIndex] + "; -fx-background-color: " + CHART_COLORS[colorIndex] + ";");
+                            // Remove default style classes and apply custom color
+                            bar.getStyleClass().removeAll("default-color0", "default-color1", 
+                                "default-color2", "default-color3", "default-color4", 
+                                "default-color5", "default-color6", "default-color7");
+                            bar.setStyle("-fx-bar-fill: " + CHART_COLORS[colorIndex] + ";");
                             colorIndex++;
                         }
                     }
                 }
-                
-                // Force chart to update
-                chart.layout();
             } catch (Exception e) {
                 System.err.println("Error applying bar colors: " + e.getMessage());
             }
@@ -239,7 +239,7 @@ public class ChartController {
             pieChart.setLabelsVisible(true);
             pieChart.setStartAngle(90);
             pieChart.setAnimated(false);
-            pieChart.setLegendVisible(true);
+            pieChart.setLegendVisible(false); // Hide legend
 
             // Set chart size
             pieChart.setPrefWidth(900);
@@ -280,19 +280,19 @@ public class ChartController {
     private void applyPieChartColors(PieChart chart) {
         javafx.application.Platform.runLater(() -> {
             try {
-                Thread.sleep(200);
+                Thread.sleep(300); // Increased delay for better rendering
                 
                 int i = 0;
                 for (PieChart.Data data : chart.getData()) {
                     if (i < CHART_COLORS.length && data.getNode() != null) {
-                        // Apply color using the correct CSS property
-                        data.getNode().setStyle("-fx-pie-color: " + CHART_COLORS[i] + "; -fx-background-color: " + CHART_COLORS[i] + ";");
+                        // Remove default style classes and apply custom color
+                        data.getNode().getStyleClass().removeAll("default-color0", "default-color1", 
+                            "default-color2", "default-color3", "default-color4", 
+                            "default-color5", "default-color6", "default-color7");
+                        data.getNode().setStyle("-fx-pie-color: " + CHART_COLORS[i] + ";");
                         i++;
                     }
                 }
-                
-                // Force chart to update
-                chart.layout();
             } catch (Exception e) {
                 System.err.println("Error applying pie colors: " + e.getMessage());
             }
@@ -362,7 +362,7 @@ public class ChartController {
     private void applyLineChartColors(LineChart<String, Number> chart) {
         javafx.application.Platform.runLater(() -> {
             try {
-                Thread.sleep(200);
+                Thread.sleep(300); // Increased delay for better rendering
                 
                 for (XYChart.Series<String, Number> series : chart.getData()) {
                     // Style the connecting line
@@ -375,20 +375,20 @@ public class ChartController {
                     for (XYChart.Data<String, Number> data : series.getData()) {
                         Node symbol = data.getNode();
                         if (symbol != null && colorIndex < CHART_COLORS.length) {
+                            // Remove default style classes
+                            symbol.getStyleClass().removeAll("default-color0", "default-color1", 
+                                "default-color2", "default-color3", "default-color4", 
+                                "default-color5", "default-color6", "default-color7");
                             symbol.setStyle(
                                 "-fx-background-color: " + CHART_COLORS[colorIndex] + ", white;" +
                                 "-fx-background-insets: 0, 2;" +
                                 "-fx-background-radius: 10px;" +
-                                "-fx-padding: 8px;" +
-                                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);"
+                                "-fx-padding: 8px;"
                             );
                             colorIndex++;
                         }
                     }
                 }
-                
-                // Force chart to update
-                chart.layout();
             } catch (Exception e) {
                 System.err.println("Error applying line colors: " + e.getMessage());
             }
