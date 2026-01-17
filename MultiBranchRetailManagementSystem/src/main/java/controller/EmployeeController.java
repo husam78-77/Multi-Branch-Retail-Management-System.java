@@ -26,6 +26,7 @@ public class EmployeeController {
     @FXML private TableColumn<Employee, String> colUsername;
     @FXML private TableColumn<Employee, String> colRole;
     @FXML private TableColumn<Employee, Integer> colBranch;
+    @FXML private TableColumn<Employee, String> colStatus;
 
     @FXML private TextField nameField;
     @FXML private TextField usernameField;
@@ -72,6 +73,11 @@ public class EmployeeController {
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
         colBranch.setCellValueFactory(new PropertyValueFactory<>("branchId"));
+        colStatus.setCellValueFactory(cellData ->
+        new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().isDeleted() ? "Deactivated" : "Active"
+        )
+);
 
         // Selection listener
         employeeTable.getSelectionModel().selectedItemProperty().addListener(
@@ -192,7 +198,13 @@ public class EmployeeController {
         // Set role
         roleComboBox.setValue(employee.getRole());
         
-        // Set branch if ADMIN
+        if (employee.isDeleted()) {
+            updateBtn.setDisable(true);
+            deleteBtn.setText("Activate");
+        } else {
+            updateBtn.setDisable(false);
+            deleteBtn.setText("Deactivate");
+        }
         if (PermissionManager.isAdmin()) {
             for (Branch branch : branchComboBox.getItems()) {
                 if (branch.getBranchId() == employee.getBranchId()) {
@@ -361,45 +373,55 @@ public class EmployeeController {
      * Handle delete employee
      */
     @FXML
-    private void handleDelete() {
-        if (selectedEmployee == null) {
-            showWarning("No Selection", "Please select an employee to delete");
-            return;
-        }
+private void handleDelete() {
 
-        // Confirmation dialog
-        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmAlert.setTitle("Confirm Delete");
-        confirmAlert.setHeaderText("Delete Employee");
-        confirmAlert.setContentText("Are you sure you want to delete: " + 
-                                   selectedEmployee.getFullName() + "?");
-
-        if (confirmAlert.showAndWait().get() != ButtonType.OK) {
-            return;
-        }
-
-        try {
-            // Delete through service
-            employeeService.deleteEmployee(selectedEmployee.getEmployeeId());
-            
-            // Log the action
-            auditService.logEmployeeDelete(
-                selectedEmployee.getFullName(),
-                selectedEmployee.getRole()
-            );
-            
-            showSuccess("Employee deleted successfully!");
-            clearForm();
-            loadEmployees();
-            
-        } catch (AccessDeniedException e) {
-            auditService.logAccessDenied("delete employee");
-            showError("Access Denied", e.getMessage());
-        } catch (Exception e) {
-            showError("Error", "Failed to delete employee: " + e.getMessage());
-            e.printStackTrace();
-        }
+    if (selectedEmployee == null) {
+        showWarning("No Selection", "Please select an employee");
+        return;
     }
+
+    boolean isDeactivated = selectedEmployee.isDeleted();
+
+    Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+    confirmAlert.setTitle("Confirm Action");
+    confirmAlert.setHeaderText(isDeactivated ? "Activate Employee" : "Deactivate Employee");
+    confirmAlert.setContentText(
+            (isDeactivated ? "Activate" : "Deactivate") +
+            " employee: " + selectedEmployee.getFullName() + " ?"
+    );
+
+    if (confirmAlert.showAndWait().get() != ButtonType.OK) {
+        return;
+    }
+
+    try {
+        employeeService.toggleEmployeeStatus(selectedEmployee.getEmployeeId());
+
+        auditService.logEmployeeStatusChange(
+                selectedEmployee.getFullName(),
+                selectedEmployee.getRole(),
+                isDeactivated ? "ACTIVATED" : "DEACTIVATED"
+        );
+
+        selectedEmployee.setDeleted(!selectedEmployee.isDeleted());
+
+        showSuccess(
+                isDeactivated
+                        ? "Employee activated successfully!"
+                        : "Employee deactivated successfully!"
+        );
+
+        clearForm();
+        loadEmployees();
+
+    } catch (AccessDeniedException e) {
+        auditService.logAccessDenied("toggle employee status");
+        showError("Access Denied", e.getMessage());
+    } catch (Exception e) {
+        showError("Error", "Failed to update employee status: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
 
     /**
      * Handle search

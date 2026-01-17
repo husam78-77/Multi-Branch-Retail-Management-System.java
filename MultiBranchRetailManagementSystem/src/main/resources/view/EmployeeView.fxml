@@ -194,6 +194,11 @@
                                 text="Branch ID" 
                                 prefWidth="100"
                                 style="-fx-alignment: CENTER;"/>
+                                <TableColumn fx:id="colStatus" 
+                                text="Status" 
+                                prefWidth="100" 
+                                style="-fx-alignment: CENTER;"/>
+
                 </columns>
             </TableView>
 

@@ -41,32 +41,33 @@ public class ProductDAO {
         }
     }
 
-    public List<Product> getAll() {
-
-        List<Product> products = new ArrayList<>();
-
-        String sql = """
-            SELECT p.*
-            FROM products p
-            JOIN branches b ON p.branch_id = b.branch_id
-            WHERE p.is_deleted = false
-              AND b.is_deleted = false
-        """;
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                products.add(mapProduct(rs));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return products;
-    }
+	public List<Product> getAll() {
+	
+	    List<Product> products = new ArrayList<>();
+	
+	    String sql = """
+	        SELECT p.*
+	        FROM products p
+	        JOIN branches b ON p.branch_id = b.branch_id
+	        WHERE b.is_deleted = false
+	        ORDER BY p.product_id
+	    """;
+	
+	    try (Connection conn = DBConnection.getConnection();
+	         PreparedStatement stmt = conn.prepareStatement(sql);
+	         ResultSet rs = stmt.executeQuery()) {
+	
+	        while (rs.next()) {
+	            products.add(mapProduct(rs));
+	        }
+	
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	
+	    return products;
+	}
+	
 
     public boolean update(Product product) {
 
@@ -106,14 +107,10 @@ public class ProductDAO {
         }
     }
 
-    public boolean softDelete(int productId) {
+    /* ===================== TOGGLE ACTIVE / DEACTIVE ===================== */
+    public boolean toggleProductStatus(int productId) {
 
-        String sql = """
-            UPDATE products
-            SET is_deleted = true
-            WHERE product_id = ?
-              AND is_deleted = false
-        """;
+        String sql = "UPDATE products SET is_deleted = NOT is_deleted WHERE product_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -126,18 +123,18 @@ public class ProductDAO {
             return false;
         }
     }
+
+    
     public List<Product> searchByName(String keyword) {
 
         List<Product> products = new ArrayList<>();
 
         String sql = """
-            SELECT p.*
-            FROM products p
-            JOIN branches b ON p.branch_id = b.branch_id
-            WHERE p.is_deleted = false
-              AND b.is_deleted = false
-              AND p.product_name ILIKE ?
-        """;
+                SELECT p.*
+                FROM products p
+                JOIN branches b ON p.branch_id = b.branch_id
+                WHERE p.product_name ILIKE ?
+            """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -216,7 +213,6 @@ public class ProductDAO {
             SELECT *
             FROM products
             WHERE product_id = ?
-              AND is_deleted = false
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -226,16 +222,7 @@ public class ProductDAO {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return new Product(
-                    rs.getInt("product_id"),
-                    rs.getString("product_name"),
-                    rs.getString("category"),
-                    rs.getDouble("price"),
-                    rs.getDouble("cost"),
-                    rs.getInt("quantity"),
-                    rs.getInt("branch_id"),
-                    rs.getBoolean("is_deleted")
-                );
+                return mapProduct(rs);
             }
 
         } catch (Exception e) {
@@ -244,5 +231,6 @@ public class ProductDAO {
 
         return null;
     }
+
 
 }

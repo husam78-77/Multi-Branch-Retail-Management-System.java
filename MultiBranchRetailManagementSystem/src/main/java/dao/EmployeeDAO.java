@@ -48,8 +48,7 @@ public class EmployeeDAO {
         String sql = """
             SELECT *
             FROM employees
-            WHERE is_deleted = false
-              AND role != 'ADMIN'
+            WHERE role != 'ADMIN'
             ORDER BY employee_id
         """;
 
@@ -133,33 +132,41 @@ public class EmployeeDAO {
         }
     }
 
-    /* ===================== SOFT DELETE ===================== */
-    public boolean softDelete(int employeeId) {
+/* ===================== TOGGLE ACTIVE / DEACTIVE ===================== */
+public boolean toggleEmployeeStatus(int employeeId) {
 
-        String roleCheck = "SELECT role FROM employees WHERE employee_id = ?";
+    String checkSql = "SELECT role, is_deleted FROM employees WHERE employee_id = ?";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(roleCheck)) {
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
 
-            checkStmt.setInt(1, employeeId);
-            ResultSet rs = checkStmt.executeQuery();
+        checkStmt.setInt(1, employeeId);
+        ResultSet rs = checkStmt.executeQuery();
 
-            if (rs.next() && "ADMIN".equals(rs.getString("role"))) {
-                System.out.println("❌ Admin cannot be deleted");
-                return false;
-            }
-
-            String sql = "UPDATE employees SET is_deleted = true WHERE employee_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, employeeId);
-
-            return stmt.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (!rs.next()) {
             return false;
         }
+
+        if ("ADMIN".equals(rs.getString("role"))) {
+            System.out.println("❌ Admin cannot be deactivated");
+            return false;
+        }
+
+        boolean currentStatus = rs.getBoolean("is_deleted");
+        boolean newStatus = !currentStatus; // toggle
+
+        String updateSql = "UPDATE employees SET is_deleted = ? WHERE employee_id = ?";
+        PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+        updateStmt.setBoolean(1, newStatus);
+        updateStmt.setInt(2, employeeId);
+
+        return updateStmt.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        return false;
     }
+}
 
     /* ===================== SEARCH ===================== */
     public List<Employee> searchByName(String keyword) {
@@ -169,8 +176,7 @@ public class EmployeeDAO {
         String sql = """
             SELECT *
             FROM employees
-            WHERE is_deleted = false
-              AND role != 'ADMIN'
+            WHERE role != 'ADMIN'
               AND full_name ILIKE ?
             ORDER BY employee_id
         """;

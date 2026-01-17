@@ -86,4 +86,12 @@ public class AuditService {
     public void logAccessDenied(String attemptedAction) {
         logInternal("ACCESS_DENIED - Attempted unauthorized action: " + attemptedAction);
     }
+    public void logEmployeeStatusChange(String fullName, String role, String action) {
+        logInternal(
+            "EMPLOYEE_STATUS_CHANGE - " +
+            action + " " + role + " employee '" + fullName + "'"
+        );
+    }
+
+
 }

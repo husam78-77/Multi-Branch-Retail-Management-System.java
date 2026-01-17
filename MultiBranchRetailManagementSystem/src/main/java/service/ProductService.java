@@ -14,42 +14,40 @@ public class ProductService {
 
     private final ProductDAO productDAO = new ProductDAO();
 
-    public List<Product> getAllProducts() {
+	 public List<Product> getAllProducts() {
+	
+	    if (!PermissionManager.canManageProducts()) {
+	        throw AccessDeniedException.forPermission("view products");
+	    }
+	
+	    Employee user = SessionManager.getCurrentUser();
+	
+	    if (PermissionManager.isAdmin()) {
+	        return List.of();
+	    }
+	
+	    return productDAO.getAll().stream()
+	            .filter(p -> p.getBranchId() == user.getBranchId())
+	            .collect(Collectors.toList());
+	}
 
-        if (!PermissionManager.canManageProducts()) {
-            throw AccessDeniedException.forPermission("view products");
-        }
+public List<Product> searchProducts(String keyword) {
 
-        List<Product> allProducts = productDAO.getAll();
-        Employee user = SessionManager.getCurrentUser();
-
-        if (PermissionManager.isAdmin()) {
-            return allProducts;
-        }
-
-        // MANAGER
-        return allProducts.stream()
-                .filter(p -> p.getBranchId() == user.getBranchId())
-                .collect(Collectors.toList());
+    if (!PermissionManager.canManageProducts()) {
+        throw AccessDeniedException.forPermission("search products");
     }
 
-    public List<Product> searchProducts(String keyword) {
+    Employee user = SessionManager.getCurrentUser();
 
-        if (!PermissionManager.canManageProducts()) {
-            throw AccessDeniedException.forPermission("search products");
-        }
-
-        List<Product> results = productDAO.searchByName(keyword);
-        Employee user = SessionManager.getCurrentUser();
-
-        if (PermissionManager.isAdmin()) {
-            return results;
-        }
-
-        return results.stream()
-                .filter(p -> p.getBranchId() == user.getBranchId())
-                .collect(Collectors.toList());
+    if (PermissionManager.isAdmin()) {
+        return List.of();
     }
+
+    return productDAO.searchByName(keyword).stream()
+            .filter(p -> p.getBranchId() == user.getBranchId())
+            .collect(Collectors.toList());
+}
+
 
     public void addProduct(Product product) {
 
@@ -93,10 +91,21 @@ public class ProductService {
         productDAO.update(product);
     }
 
-    public void deleteProduct(int productId) {
+
+
+    public List<Product> getProductsForBranch(int branchId) {
+
+        // Used by Sales screen
+        PermissionManager.requireBranchAccess(branchId, "view products");
+
+        return productDAO.getAll().stream()
+                .filter(p -> p.getBranchId() == branchId)
+                .collect(Collectors.toList());
+    }
+    public void toggleProductStatus(int productId) {
 
         if (!PermissionManager.canManageProducts()) {
-            throw AccessDeniedException.forPermission("delete product");
+            throw AccessDeniedException.forPermission("change product status");
         }
 
         Product product = productDAO.getById(productId);
@@ -109,23 +118,14 @@ public class ProductService {
         if (PermissionManager.isManager()) {
             if (product.getBranchId() != user.getBranchId()) {
                 throw AccessDeniedException.forBranch(
-                        "delete products",
+                        "change product status",
                         user.getBranchId(),
                         product.getBranchId()
                 );
             }
         }
 
-        productDAO.softDelete(productId);
+        productDAO.toggleProductStatus(productId);
     }
 
-    public List<Product> getProductsForBranch(int branchId) {
-
-        // Used by Sales screen
-        PermissionManager.requireBranchAccess(branchId, "view products");
-
-        return productDAO.getAll().stream()
-                .filter(p -> p.getBranchId() == branchId)
-                .collect(Collectors.toList());
-    }
 }

@@ -67,5 +67,9 @@ public class Employee {
 		this.password = password;
 	}
 
+	public void setDeleted(boolean deleted) {
+	    this.isDeleted = deleted;
+	}
+
 
 }

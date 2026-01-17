@@ -151,7 +151,7 @@ public class EmployeeService {
             }
         }
 
-        employeeDAO.softDelete(employeeId);
+//        employeeDAO.softDelete(employeeId);
     }
 
     /**
@@ -239,4 +239,18 @@ public class EmployeeService {
     public boolean isUsernameExists(String username) {
         return employeeDAO.isUsernameExists(username);
     }
+    public void toggleEmployeeStatus(int employeeId) throws Exception {
+
+        if (!PermissionManager.canManageEmployees()) {
+            throw AccessDeniedException.forPermission("change employee status");
+        }
+
+        boolean success = employeeDAO.toggleEmployeeStatus(employeeId);
+
+        if (!success) {
+            throw new Exception("Failed to change employee status");
+        }
+    }
+
+
 }

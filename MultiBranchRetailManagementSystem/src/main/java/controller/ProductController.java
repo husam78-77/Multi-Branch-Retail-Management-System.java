@@ -26,6 +26,7 @@ public class ProductController {
     @FXML private TableColumn<Product, Double> colPrice;
     @FXML private TableColumn<Product, Integer> colQuantity;
     @FXML private TableColumn<Product, Integer> colBranch;
+    @FXML private TableColumn<Product, String> colStatus;
 
     @FXML private TextField searchField;
     @FXML private TextField nameField;
@@ -35,6 +36,7 @@ public class ProductController {
     @FXML private ComboBox<Branch> branchComboBox;
 
     @FXML private Label userInfoLabel;
+    @FXML private Button deleteBtn;
 
     private final ProductService productService = new ProductService();
     private final BranchService branchService = new BranchService();
@@ -78,7 +80,13 @@ public class ProductController {
 
         colBranch.setCellValueFactory(d ->
                 new SimpleIntegerProperty(d.getValue().getBranchId()).asObject());
+        colStatus.setCellValueFactory(cellData ->
+        new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().isDeleted() ? "Deactivated" : "Active"
+        )
+);
     }
+    
 
     /* ===================== BRANCH COMBO ===================== */
     private void setupBranchComboBox() {
@@ -136,7 +144,11 @@ public class ProductController {
                         nameField.setText(selected.getProductName());
                         categoryField.setText(selected.getCategory());
                         priceField.setText(String.valueOf(selected.getPrice()));
-                        quantityField.setText(String.valueOf(selected.getQuantity()));  // ✅ Load quantity
+                        quantityField.setText(String.valueOf(selected.getQuantity()));
+
+                        deleteBtn.setText(
+                                selected.isDeleted() ? "Activate" : "Deactivate"
+                        );
 
                         if (PermissionManager.isAdmin()) {
                             branchComboBox.getItems().forEach(branch -> {
@@ -150,12 +162,14 @@ public class ProductController {
         );
     }
 
+
     /* ===================== LOAD ===================== */
     @FXML
     public void loadProducts() {
         try {
             productList.clear();
             productList.addAll(productService.getAllProducts());
+            
             productTable.setItems(productList);
         } catch (Exception e) {
             showAlert("Error", "Failed to load products", Alert.AlertType.ERROR);
@@ -312,29 +326,49 @@ public class ProductController {
         Product selected = productTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert("Selection Required",
-                    "Please select a product to delete.",
-                    Alert.AlertType.WARNING);
+            showAlert(
+                    "Selection Required",
+                    "Please select a product",
+                    Alert.AlertType.WARNING
+            );
             return;
         }
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Are you sure you want to delete this product?",
-                ButtonType.OK, ButtonType.CANCEL);
+        boolean isDeactivated = selected.isDeleted();
+
+        Alert confirm = new Alert(
+                Alert.AlertType.CONFIRMATION,
+                (isDeactivated ? "Activate" : "Deactivate") +
+                        " product: " + selected.getProductName() + " ?",
+                ButtonType.OK,
+                ButtonType.CANCEL
+        );
 
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
             return;
         }
 
         try {
-            productService.deleteProduct(selected.getProductId());
-            showAlert("Success", "Product deleted successfully!", Alert.AlertType.INFORMATION);
+            productService.toggleProductStatus(selected.getProductId());
+
+            selected.setDeleted(!selected.isDeleted());
+
+            showAlert(
+                    "Success",
+                    isDeactivated
+                            ? "Product activated successfully!"
+                            : "Product deactivated successfully!",
+                    Alert.AlertType.INFORMATION
+            );
+
             loadProducts();
             clearFields();
+
         } catch (Exception e) {
             showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
+
 
     /* ===================== NAV ===================== */
     @FXML
