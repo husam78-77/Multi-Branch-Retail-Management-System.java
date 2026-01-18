@@ -14,19 +14,20 @@ public class InvoiceDAO {
     public InvoiceHeader getInvoiceHeader(int saleId) {
 
         String sql = """
-            SELECT 
-                s.sale_id,
-                s.sale_date,
-                s.total_amount,
-                c.full_name AS customer_name,
-                c.phone,
-                e.full_name AS employee_name,
-                b.branch_name
-            FROM sales s
-            JOIN customers c ON s.customer_id = c.customer_id
-            JOIN employees e ON s.employee_id = e.employee_id
-            JOIN branches b ON s.branch_id = b.branch_id
-            WHERE s.sale_id = ?
+			SELECT 
+			    s.sale_id,
+			    s.sale_date,
+			    s.total_amount,
+			    c.full_name AS customer_name,
+			    c.phone,
+			    e.full_name AS employee_name, 
+			    b.branch_name,
+			    b.city
+			FROM sales s
+			JOIN customers c ON s.customer_id = c.customer_id
+			JOIN employees e ON s.employee_id = e.employee_id
+			JOIN branches b ON s.branch_id = b.branch_id
+			WHERE s.sale_id = ?;
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -43,6 +44,7 @@ public class InvoiceDAO {
                         rs.getString("phone"),
                         rs.getString("employee_name"),
                         rs.getString("branch_name"),
+                        rs.getString("city"),
                         rs.getDouble("total_amount")
                 );
             }

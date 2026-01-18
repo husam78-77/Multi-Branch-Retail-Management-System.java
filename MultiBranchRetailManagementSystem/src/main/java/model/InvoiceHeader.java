@@ -8,6 +8,7 @@ public class InvoiceHeader {
     private String customerPhone;
     private String employeeName;
     private String branchName;
+    private String branchCity;
     private double totalAmount;
 
     public InvoiceHeader(
@@ -17,6 +18,7 @@ public class InvoiceHeader {
             String customerPhone,
             String employeeName,
             String branchName,
+            String branchCity,
             double totalAmount
     ) {
         this.saleId = saleId;
@@ -25,6 +27,7 @@ public class InvoiceHeader {
         this.customerPhone = customerPhone;
         this.employeeName = employeeName;
         this.branchName = branchName;
+        this.branchCity=branchCity;
         this.totalAmount = totalAmount;
     }
 
@@ -55,4 +58,8 @@ public class InvoiceHeader {
     public double getTotalAmount() {
         return totalAmount;
     }
+    public String getBranchCity() {
+        return branchCity;
+    }
+
 }

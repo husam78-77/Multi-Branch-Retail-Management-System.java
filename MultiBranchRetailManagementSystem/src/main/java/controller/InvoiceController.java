@@ -16,6 +16,7 @@ import java.util.List;
 public class InvoiceController {
 	private int currentSaleId;
 	private String currentCashierName;
+	private String currentBranchCity;
 	private List<SaleItem> currentItems;
 	private double currentTotal;
 
@@ -50,7 +51,8 @@ public class InvoiceController {
 	        showAlert("Invoice not found.");
 	        return;
 	    }
-	
+	    currentBranchCity = header.getBranchCity();
+
 	    // ====== Header UI ======
 	    invoiceIdLabel.setText(String.valueOf(header.getSaleId()));
 	    dateLabel.setText(header.getSaleDate());
@@ -113,12 +115,18 @@ public class InvoiceController {
 	        return;
 	    }
 	
-	    PDFGenerator.generateInvoice(
+	    PDFGenerator.generateInvoiceFull(
 	            currentSaleId,
-	            currentCashierName,
+	            dateLabel.getText(),
+	            customerNameLabel.getText(),
+	            customerPhoneLabel.getText(),
+	            employeeNameLabel.getText(),
+	            branchNameLabel.getText(),
+	            currentBranchCity,
 	            currentItems,
 	            currentTotal
 	    );
+
 	
 	    showInfo("Invoice PDF generated successfully.");
 	}
