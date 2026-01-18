@@ -117,7 +117,7 @@ public class PermissionManager {
     }
 
     public static boolean canViewAuditLogs() {
-        return SessionManager.isLoggedIn(); 
+        return isAdmin() || isManager();
     }
 
     public static String getPermissionDeniedMessage(String feature) {

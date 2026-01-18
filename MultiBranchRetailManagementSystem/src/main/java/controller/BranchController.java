@@ -17,11 +17,13 @@ public class BranchController {
     @FXML private TableColumn<Branch, String> colName;
     @FXML private TableColumn<Branch, String> colCity;
     @FXML private TableColumn<Branch, String> colPhone;
+    @FXML private TableColumn<Branch, String> colStatus;
 
     @FXML private TextField searchField;
     @FXML private TextField nameField;
     @FXML private TextField cityField;
     @FXML private TextField phoneField;
+    @FXML private Button deleteBtn;
 
     private final BranchService branchService = new BranchService();
     private final ObservableList<Branch> branchList =
@@ -52,16 +54,25 @@ public class BranchController {
         colPhone.setCellValueFactory(d ->
                 new javafx.beans.property.SimpleStringProperty(
                         d.getValue().getPhone()));
+        colStatus.setCellValueFactory(cellData ->
+        new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().isDeleted() ? "Deactivated" : "Active"
+        ));
 
         branchTable.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldVal, selected) -> {
-                if (selected != null) {
-                    nameField.setText(selected.getBranchName());
-                    cityField.setText(selected.getCity());
-                    phoneField.setText(selected.getPhone());
-                }
-            }
-        );
+        	    (obs, oldVal, selected) -> {
+        	        if (selected != null) {
+        	            nameField.setText(selected.getBranchName());
+        	            cityField.setText(selected.getCity());
+        	            phoneField.setText(selected.getPhone());
+
+        	            deleteBtn.setText(
+        	                    selected.isDeleted() ? "Activate" : "Deactivate"
+        	            );
+        	        }
+        	    }
+        	);
+
 
         loadBranches();
     }
@@ -130,6 +141,10 @@ public class BranchController {
 
         if (selected.getBranchId() == 1) {
             showAlert("Not Allowed", "Main Branch cannot be modified.", Alert.AlertType.ERROR);
+            return;
+        }
+        if (selected.isDeleted()== true ) {
+            showAlert("Not Allowed", "Deactivated Branch cannot be modified.", Alert.AlertType.ERROR);
             return;
         }
 

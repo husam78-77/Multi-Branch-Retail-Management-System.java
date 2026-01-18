@@ -78,6 +78,46 @@ public class SceneManager {
             showError("Failed to load scene: " + title);
         }
     }
+    public static void switchScene(
+            String fxmlPath,
+            String title,
+            java.util.function.Consumer<Object> controllerConsumer
+    ) {
+        if (!SessionManager.isLoggedIn() && !fxmlPath.equals("/view/LoginView.fxml")) {
+            switchToLogin();
+            return;
+        }
+
+        if (PROTECTED_SCENES.containsKey(fxmlPath)) {
+            PermissionChecker checker = PROTECTED_SCENES.get(fxmlPath);
+            if (!checker.hasPermission()) {
+                showAccessDenied(title);
+                return;
+            }
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    SceneManager.class.getResource(fxmlPath)
+            );
+
+            Parent root = loader.load();
+
+            Object controller = loader.getController();
+            if (controllerConsumer != null) {
+                controllerConsumer.accept(controller);
+            }
+
+            Scene scene = new Scene(root, PREF_WIDTH, PREF_HEIGHT);
+
+            mainStage.setTitle(title);
+            mainStage.setScene(scene);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to load scene: " + title);
+        }
+    }
 
     public static void switchSceneUnsafe(String fxmlPath, String title) {
         try {

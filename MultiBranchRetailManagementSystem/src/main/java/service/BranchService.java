@@ -26,7 +26,7 @@ public class BranchService {
 
     public void deleteBranch(int branchId) {
         PermissionManager.requireAdmin("delete branch");
-        branchDAO.softDelete(branchId);
+        branchDAO.toggleBranchStatus(branchId);
     }
 
     public List<Branch> searchBranches(String keyword) {

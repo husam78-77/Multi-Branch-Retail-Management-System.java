@@ -52,7 +52,6 @@ public class DashboardController {
 
         setupButtonActions();
 
-        auditService.log("DASHBOARD_ACCESS - Accessed dashboard");
     }
 
     private void setupWelcomeMessage(Employee user) {
@@ -98,7 +97,7 @@ public class DashboardController {
 
         setCardVisibility(employeesCard, employeesBtn, PermissionManager.canManageEmployees());
 
-        setCardVisibility(auditLogsCard, auditLogsBtn, true);
+        setCardVisibility(auditLogsCard, auditLogsBtn, PermissionManager.canViewAuditLogs());
     }
 
     private void setCardVisibility(StackPane card, Button button, boolean hasPermission) {
@@ -114,49 +113,42 @@ public class DashboardController {
     private void setupButtonActions() {
         if (productsBtn != null) {
             productsBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Products");
                 SceneManager.switchScene("/view/ProductView.fxml", "Products");
             });
         }
 
         if (branchesBtn != null) {
             branchesBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Branches");
                 SceneManager.switchScene("/view/BranchView.fxml", "Branches");
             });
         }
 
         if (salesBtn != null) {
             salesBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Sales");
                 SceneManager.switchScene("/view/SalesView.fxml", "Sales");
             });
         }
 
         if (reportsBtn != null) {
             reportsBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Reports");
                 SceneManager.switchScene("/view/ReportsMenuView.fxml", "Reports");
             });
         }
 
         if (chartsBtn != null) {
             chartsBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Charts");
                 SceneManager.switchScene("/view/ChartView.fxml", "Charts");
             });
         }
 
         if (employeesBtn != null) {
             employeesBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Employees");
                 SceneManager.switchScene("/view/EmployeeView.fxml", "Employees");
             });
         }
 
         if (auditLogsBtn != null) {
             auditLogsBtn.setOnAction(e -> {
-                auditService.log("NAVIGATION - Accessed Audit Logs");
                 SceneManager.switchScene("/view/AuditLogView.fxml", "Audit Logs");
             });
         }

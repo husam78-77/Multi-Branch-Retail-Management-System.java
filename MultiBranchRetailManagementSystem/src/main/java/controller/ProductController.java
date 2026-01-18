@@ -83,8 +83,7 @@ public class ProductController {
         colStatus.setCellValueFactory(cellData ->
         new javafx.beans.property.SimpleStringProperty(
                 cellData.getValue().isDeleted() ? "Deactivated" : "Active"
-        )
-);
+        ));
     }
     
 

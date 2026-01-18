@@ -1,5 +1,6 @@
 package controller;
 
+import dao.CustomerDAO;
 import dao.ProductDAO;
 import dao.SaleDAO;
 import dao.SaleDetailDAO;
@@ -11,11 +12,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import model.Customer;
 import model.Product;
 import model.SaleItem;
 import util.PDFGenerator;
 import util.SessionManager;
 import com.husam.app.SceneManager;
+import controller.InvoiceController;
 
 import java.sql.Connection;
 
@@ -31,6 +34,11 @@ public class SalesController {
     @FXML private TableColumn<SaleItem, Integer> colQty;
     @FXML private TableColumn<SaleItem, Double> colPrice;
     @FXML private TableColumn<SaleItem, Double> colSubtotal;
+    @FXML private ComboBox<Customer> customerComboBox;
+    private final CustomerDAO customerDAO = new CustomerDAO();
+    @FXML private ComboBox<String> customerTypeComboBox;
+    @FXML private TextField customerNameField;
+    @FXML private TextField customerPhoneField;
 
     @FXML private Label totalLabel;
 
@@ -41,9 +49,17 @@ public class SalesController {
     @FXML
     public void initialize() {
 
-        productComboBox.setItems(
-                FXCollections.observableArrayList(productDAO.getAll())
-        );
+    	int branchId = SessionManager.getCurrentUser().getBranchId();
+
+    	productComboBox.setItems(
+    	        FXCollections.observableArrayList(
+    	                productDAO.getAll().stream()
+    	                        .filter(p -> !p.isDeleted())          
+    	                        .filter(p -> p.getBranchId() == branchId) 
+    	                        .toList()
+    	        )
+    	);
+
 
         productComboBox.setCellFactory(cb -> new ListCell<>() {
             @Override
@@ -72,6 +88,35 @@ public class SalesController {
 
         colSubtotal.setCellValueFactory(d ->
                 new SimpleDoubleProperty(d.getValue().getSubtotal()).asObject());
+        customerTypeComboBox.setItems(
+                FXCollections.observableArrayList("WALK_IN", "NEW_CUSTOMER")
+        );
+        customerTypeComboBox.setValue("WALK_IN");
+
+        customerNameField.setText("Walk-in Customer");
+        customerNameField.setDisable(true);
+        customerPhoneField.setDisable(true);
+
+        customerTypeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+        	System.out.println("Customer Type = " + customerTypeComboBox.getValue());
+
+            if ("WALK_IN".equals(newVal)) {
+                customerNameField.setText("Walk-in Customer");
+                customerPhoneField.clear();
+
+                customerNameField.setDisable(true);
+                customerPhoneField.setDisable(true);
+
+            } else { 
+                customerNameField.clear();
+                customerPhoneField.clear();
+
+                customerNameField.setDisable(false);
+                customerPhoneField.setDisable(false);
+            }
+        });
+
+
 
         cartTable.setItems(cart);
         updateTotal();
@@ -111,47 +156,82 @@ public class SalesController {
         quantityField.clear();
     }
 
-@FXML
-public void handleConfirmSale() {
+	@FXML
+	public void handleConfirmSale() {
+	
+	    if (cart.isEmpty()) {
+	        showAlert("Cart is empty.");
+	        return;
+	    }
+	
+	    int branchId = SessionManager.getCurrentUser().getBranchId();
+	    int employeeId = SessionManager.getCurrentUser().getEmployeeId();
+	    int customerId;
+	
+	    try (Connection conn = DBConnection.getConnection()) {
+	
+	        conn.setAutoCommit(false);
+	
+	        if ("NEW_CUSTOMER".equals(customerTypeComboBox.getValue())) {
+	
+	            if (customerNameField.getText().isBlank()) {
+	                showAlert("Customer name is required.");
+	                return;
+	            }
+	
+	            Customer newCustomer = new Customer(
+	                    customerNameField.getText().trim(),
+	                    customerPhoneField.getText().trim()
+	            );
+	
+	            customerId = customerDAO.insert(conn, newCustomer);
+	
+	            if (customerId == -1) {
+	                conn.rollback();
+	                showAlert("Failed to create customer.");
+	                return;
+	            }
+	
+	        } else {
+	            customerId = 1; // Walk-in
+	        }
+	
+	        int saleId = saleDAO.createSale(conn, branchId, employeeId, customerId);
+	        if (saleId == -1) {
+	            conn.rollback();
+	            showAlert("Failed to create sale.");
+	            return;
+	        }
+	
+	        double total = 0;
+	        for (SaleItem item : cart) {
+	            total += saleDetailDAO.insertDetail(conn, saleId, item);
+	        }
+	
+	        saleDAO.updateTotal(conn, saleId, total);
+	
+	        conn.commit();
+	        int finalSaleId = saleId; 
 
-    if (cart.isEmpty()) {
-        showAlert("Cart is empty.");
-        return;
-    }
+	        SceneManager.switchScene(
+	        	    "/view/InvoiceView.fxml",
+	        	    "Invoice",
+	        	    controller -> {
+	        	        ((InvoiceController) controller).loadInvoice(finalSaleId);
+	        	    }
+	        	);
 
-    int branchId = SessionManager.getCurrentUser().getBranchId();
-    int employeeId = SessionManager.getCurrentUser().getEmployeeId();
 
-    try (Connection conn = DBConnection.getConnection()) {
+	        showInfo("Sale completed successfully.");
+	        cart.clear();
+	        updateTotal();
+	
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        showAlert("Error: " + e.getMessage());
+	    }
+	}
 
-        conn.setAutoCommit(false);
-
-        int saleId = saleDAO.createSale(conn, branchId, employeeId);
-        if (saleId == -1) {
-            conn.rollback();
-            showAlert("Failed to create sale.");
-            return;
-        }
-
-        double total = 0;
-
-        for (SaleItem item : cart) {
-            total += saleDetailDAO.insertDetail(conn, saleId, item);
-        }
-
-        saleDAO.updateTotal(conn, saleId, total);
-
-        conn.commit();
-
-        showInfo("Sale completed successfully.");
-        cart.clear();
-        updateTotal();
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        showAlert("Error: " + e.getMessage());
-    }
-}
 
     @FXML
     private void handleClearCart() {

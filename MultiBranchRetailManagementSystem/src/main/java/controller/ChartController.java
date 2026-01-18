@@ -280,7 +280,7 @@ public class ChartController {
     private void applyPieChartColors(PieChart chart) {
         javafx.application.Platform.runLater(() -> {
             try {
-                Thread.sleep(300); // Increased delay for better rendering
+                Thread.sleep(300); 
                 
                 int i = 0;
                 for (PieChart.Data data : chart.getData()) {
@@ -365,17 +365,14 @@ public class ChartController {
                 Thread.sleep(300); // Increased delay for better rendering
                 
                 for (XYChart.Series<String, Number> series : chart.getData()) {
-                    // Style the connecting line
                     if (series.getNode() != null) {
                         series.getNode().setStyle("-fx-stroke: " + CHART_COLORS[0] + "; -fx-stroke-width: 3px;");
                     }
                     
-                    // Style each symbol with different color
                     int colorIndex = 0;
                     for (XYChart.Data<String, Number> data : series.getData()) {
                         Node symbol = data.getNode();
                         if (symbol != null && colorIndex < CHART_COLORS.length) {
-                            // Remove default style classes
                             symbol.getStyleClass().removeAll("default-color0", "default-color1", 
                                 "default-color2", "default-color3", "default-color4", 
                                 "default-color5", "default-color6", "default-color7");

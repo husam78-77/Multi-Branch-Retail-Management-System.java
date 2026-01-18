@@ -59,6 +59,39 @@
                 
                 <Separator/>
 
+				<!-- Customer Type -->
+				<VBox spacing="8">
+				    <Label text="Customer Type"
+				           style="-fx-font-size: 12px;
+				                  -fx-font-weight: 600;
+				                  -fx-text-fill: #34495e;"/>
+				
+				    <ComboBox fx:id="customerTypeComboBox"
+				              prefWidth="300"
+				              style="-fx-background-color: #f8f9fa;
+				                     -fx-background-radius: 5;
+				                     -fx-border-color: #e0e0e0;
+				                     -fx-border-radius: 5;
+				                     -fx-font-size: 13px;"/>
+				</VBox>
+				
+				<!-- Customer Name -->
+				<VBox spacing="8">
+				    <Label text="Customer Name"/>
+				    <TextField fx:id="customerNameField"
+				               prefWidth="300"
+				               promptText="Enter customer name"/>
+				</VBox>
+				
+				<!-- Customer Phone -->
+				<VBox spacing="8">
+				    <Label text="Phone Number"/>
+				    <TextField fx:id="customerPhoneField"
+				               prefWidth="300"
+				               promptText="Enter phone number"/>
+				</VBox>
+
+
                 <!-- Product Selection -->
                 <VBox spacing="8">
                     <Label text="Product" 
