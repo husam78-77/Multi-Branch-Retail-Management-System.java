@@ -94,6 +94,9 @@
                     <TableColumn text="Price (RM)" fx:id="colPrice" 
                                  prefWidth="120"
                                  style="-fx-alignment: CENTER-RIGHT;"/>
+					<TableColumn text="Cost (RM)" fx:id="colCost" 
+                                 prefWidth="120"
+                                 style="-fx-alignment: CENTER-RIGHT;"/>
                     <TableColumn text="Quantity" fx:id="colQuantity" 
                                  prefWidth="100"
                                  style="-fx-alignment: CENTER;"/>

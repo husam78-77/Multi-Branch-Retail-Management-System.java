@@ -17,30 +17,47 @@ import util.SessionManager;
 
 import java.util.List;
 
-
 public class EmployeeController {
 
-    @FXML private TableView<Employee> employeeTable;
-    @FXML private TableColumn<Employee, Integer> colId;
-    @FXML private TableColumn<Employee, String> colName;
-    @FXML private TableColumn<Employee, String> colUsername;
-    @FXML private TableColumn<Employee, String> colRole;
-    @FXML private TableColumn<Employee, Integer> colBranch;
-    @FXML private TableColumn<Employee, String> colStatus;
+    @FXML
+    private TableView<Employee> employeeTable;
+    @FXML
+    private TableColumn<Employee, Integer> colId;
+    @FXML
+    private TableColumn<Employee, String> colName;
+    @FXML
+    private TableColumn<Employee, String> colUsername;
+    @FXML
+    private TableColumn<Employee, String> colRole;
+    @FXML
+    private TableColumn<Employee, Integer> colBranch;
+    @FXML
+    private TableColumn<Employee, String> colStatus;
 
-    @FXML private TextField nameField;
-    @FXML private TextField usernameField;
-    @FXML private PasswordField passwordField;
-    @FXML private ComboBox<String> roleComboBox;
-    @FXML private ComboBox<Branch> branchComboBox;
-    @FXML private TextField searchField;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private TextField usernameField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private ComboBox<String> roleComboBox;
+    @FXML
+    private ComboBox<Branch> branchComboBox;
+    @FXML
+    private TextField searchField;
 
-    @FXML private Label userInfoLabel;
-    @FXML private Label roleHintLabel;
+    @FXML
+    private Label userInfoLabel;
+    @FXML
+    private Label roleHintLabel;
 
-    @FXML private Button addBtn;
-    @FXML private Button updateBtn;
-    @FXML private Button deleteBtn;
+    @FXML
+    private Button addBtn;
+    @FXML
+    private Button updateBtn;
+    @FXML
+    private Button deleteBtn;
 
     private final EmployeeService employeeService = new EmployeeService();
     private final BranchService branchService = new BranchService();
@@ -73,11 +90,8 @@ public class EmployeeController {
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("role"));
         colBranch.setCellValueFactory(new PropertyValueFactory<>("branchId"));
-        colStatus.setCellValueFactory(cellData ->
-        new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().isDeleted() ? "Deactivated" : "Active"
-        )
-);
+        colStatus.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().isDeleted() ? "Deactivated" : "Active"));
 
         // Selection listener
         employeeTable.getSelectionModel().selectedItemProperty().addListener(
@@ -85,8 +99,7 @@ public class EmployeeController {
                     if (newSelection != null) {
                         loadEmployeeToForm(newSelection);
                     }
-                }
-        );
+                });
     }
 
     /**
@@ -98,7 +111,7 @@ public class EmployeeController {
             roleComboBox.getItems().addAll("MANAGER");
             roleComboBox.setValue("MANAGER");
             roleComboBox.setDisable(true); // Lock to MANAGER
-            
+
             if (roleHintLabel != null) {
                 roleHintLabel.setText("💡 As ADMIN, you can only manage MANAGER employees");
                 roleHintLabel.setStyle("-fx-text-fill: #3498db;");
@@ -108,7 +121,7 @@ public class EmployeeController {
             roleComboBox.getItems().addAll("CASHIER");
             roleComboBox.setValue("CASHIER");
             roleComboBox.setDisable(true); // Lock to CASHIER
-            
+
             if (roleHintLabel != null) {
                 roleHintLabel.setText("💡 As MANAGER, you can only manage CASHIER employees");
                 roleHintLabel.setStyle("-fx-text-fill: #3498db;");
@@ -142,16 +155,14 @@ public class EmployeeController {
             @Override
             protected void updateItem(Branch item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : 
-                    item.getBranchName() + " (ID: " + item.getBranchId() + ")");
+                setText(empty || item == null ? null : item.getBranchName() + " (ID: " + item.getBranchId() + ")");
             }
         });
         branchComboBox.setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(Branch item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : 
-                    item.getBranchName() + " (ID: " + item.getBranchId() + ")");
+                setText(empty || item == null ? null : item.getBranchName() + " (ID: " + item.getBranchId() + ")");
             }
         });
     }
@@ -161,7 +172,7 @@ public class EmployeeController {
      */
     private void setupUserInfo() {
         model.Employee user = SessionManager.getCurrentUser();
-        
+
         if (PermissionManager.isAdmin()) {
             userInfoLabel.setText("👑 ADMIN - Manage MANAGERS across all branches");
             userInfoLabel.setStyle("-fx-text-fill: #51cf66; -fx-font-weight: bold;");
@@ -190,14 +201,14 @@ public class EmployeeController {
      */
     private void loadEmployeeToForm(Employee employee) {
         selectedEmployee = employee;
-        
+
         nameField.setText(employee.getFullName());
         usernameField.setText(employee.getUsername());
-        passwordField.clear(); 
-        
+        passwordField.clear();
+
         // Set role
         roleComboBox.setValue(employee.getRole());
-        
+
         if (employee.isDeleted()) {
             updateBtn.setDisable(true);
             deleteBtn.setText("Activate");
@@ -223,8 +234,8 @@ public class EmployeeController {
         try {
             // Validation
             if (nameField.getText().trim().isEmpty() ||
-                usernameField.getText().trim().isEmpty() ||
-                passwordField.getText().trim().isEmpty()) {
+                    usernameField.getText().trim().isEmpty() ||
+                    passwordField.getText().trim().isEmpty()) {
                 showWarning("Validation Error", "Please fill in all fields");
                 return;
             }
@@ -260,26 +271,24 @@ public class EmployeeController {
                     usernameField.getText().trim(),
                     role,
                     branchId,
-                    false
-            );
-            
+                    false);
+
             // Set password
             employee.setPassword(passwordField.getText().trim());
 
             // Add through service
             employeeService.addEmployee(employee);
-            
+
             // Log the action
             auditService.logEmployeeAdd(
-                employee.getFullName(),
-                role,
-                branchId
-            );
-            
+                    employee.getFullName(),
+                    role,
+                    branchId);
+
             showSuccess("Employee added successfully!");
             clearForm();
             loadEmployees();
-            
+
         } catch (AccessDeniedException e) {
             auditService.logAccessDenied("add employee");
             showError("Access Denied", e.getMessage());
@@ -304,7 +313,7 @@ public class EmployeeController {
         try {
             // Validation
             if (nameField.getText().trim().isEmpty() ||
-                usernameField.getText().trim().isEmpty()) {
+                    usernameField.getText().trim().isEmpty()) {
                 showWarning("Validation Error", "Please fill in all required fields");
                 return;
             }
@@ -342,22 +351,20 @@ public class EmployeeController {
                     usernameField.getText().trim(),
                     role,
                     branchId,
-                    false
-            );
+                    false);
 
             // Update through service
             employeeService.updateEmployee(updatedEmployee);
-            
+
             // Log the action
             auditService.logEmployeeUpdate(
-                updatedEmployee.getFullName(),
-                role
-            );
-            
+                    updatedEmployee.getFullName(),
+                    role);
+
             showSuccess("Employee updated successfully!");
             clearForm();
             loadEmployees();
-            
+
         } catch (AccessDeniedException e) {
             auditService.logAccessDenied("update employee");
             showError("Access Denied", e.getMessage());
@@ -373,55 +380,52 @@ public class EmployeeController {
      * Handle delete employee
      */
     @FXML
-private void handleDelete() {
+    private void handleDelete() {
 
-    if (selectedEmployee == null) {
-        showWarning("No Selection", "Please select an employee");
-        return;
+        if (selectedEmployee == null) {
+            showWarning("No Selection", "Please select an employee");
+            return;
+        }
+
+        boolean isDeactivated = selectedEmployee.isDeleted();
+
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirm Action");
+        confirmAlert.setHeaderText(isDeactivated ? "Activate Employee" : "Deactivate Employee");
+        confirmAlert.setContentText(
+                (isDeactivated ? "Activate" : "Deactivate") +
+                        " employee: " + selectedEmployee.getFullName() + " ?");
+
+        if (confirmAlert.showAndWait().get() != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            employeeService.toggleEmployeeStatus(selectedEmployee.getEmployeeId());
+
+            auditService.logEmployeeStatusChange(
+                    selectedEmployee.getFullName(),
+                    selectedEmployee.getRole(),
+                    isDeactivated ? "ACTIVATED" : "DEACTIVATED");
+
+            selectedEmployee.setDeleted(!selectedEmployee.isDeleted());
+
+            showSuccess(
+                    isDeactivated
+                            ? "Employee activated successfully!"
+                            : "Employee deactivated successfully!");
+
+            clearForm();
+            loadEmployees();
+
+        } catch (AccessDeniedException e) {
+            auditService.logAccessDenied("toggle employee status");
+            showError("Access Denied", e.getMessage());
+        } catch (Exception e) {
+            showError("Error", "Failed to update employee status: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-
-    boolean isDeactivated = selectedEmployee.isDeleted();
-
-    Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
-    confirmAlert.setTitle("Confirm Action");
-    confirmAlert.setHeaderText(isDeactivated ? "Activate Employee" : "Deactivate Employee");
-    confirmAlert.setContentText(
-            (isDeactivated ? "Activate" : "Deactivate") +
-            " employee: " + selectedEmployee.getFullName() + " ?"
-    );
-
-    if (confirmAlert.showAndWait().get() != ButtonType.OK) {
-        return;
-    }
-
-    try {
-        employeeService.toggleEmployeeStatus(selectedEmployee.getEmployeeId());
-
-        auditService.logEmployeeStatusChange(
-                selectedEmployee.getFullName(),
-                selectedEmployee.getRole(),
-                isDeactivated ? "ACTIVATED" : "DEACTIVATED"
-        );
-
-        selectedEmployee.setDeleted(!selectedEmployee.isDeleted());
-
-        showSuccess(
-                isDeactivated
-                        ? "Employee activated successfully!"
-                        : "Employee deactivated successfully!"
-        );
-
-        clearForm();
-        loadEmployees();
-
-    } catch (AccessDeniedException e) {
-        auditService.logAccessDenied("toggle employee status");
-        showError("Access Denied", e.getMessage());
-    } catch (Exception e) {
-        showError("Error", "Failed to update employee status: " + e.getMessage());
-        e.printStackTrace();
-    }
-}
 
     /**
      * Handle search
@@ -429,7 +433,7 @@ private void handleDelete() {
     @FXML
     private void handleSearch() {
         String keyword = searchField.getText().trim();
-        
+
         if (keyword.isEmpty()) {
             loadEmployees();
             return;
@@ -453,18 +457,18 @@ private void handleDelete() {
         nameField.clear();
         usernameField.clear();
         passwordField.clear();
-        
+
         // Reset role to default
         if (PermissionManager.isAdmin()) {
             roleComboBox.setValue("MANAGER");
         } else {
             roleComboBox.setValue("CASHIER");
         }
-        
+
         if (PermissionManager.isAdmin()) {
             branchComboBox.setValue(null);
         }
-        
+
         employeeTable.getSelectionModel().clearSelection();
     }
 

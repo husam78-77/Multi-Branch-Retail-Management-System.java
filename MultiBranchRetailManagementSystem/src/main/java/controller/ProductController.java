@@ -19,24 +19,42 @@ import util.SessionManager;
 
 public class ProductController {
 
-    @FXML private TableView<Product> productTable;
-    @FXML private TableColumn<Product, Integer> colId;
-    @FXML private TableColumn<Product, String> colName;
-    @FXML private TableColumn<Product, String> colCategory;
-    @FXML private TableColumn<Product, Double> colPrice;
-    @FXML private TableColumn<Product, Integer> colQuantity;
-    @FXML private TableColumn<Product, Integer> colBranch;
-    @FXML private TableColumn<Product, String> colStatus;
+    @FXML
+    private TableView<Product> productTable;
+    @FXML
+    private TableColumn<Product, Integer> colId;
+    @FXML
+    private TableColumn<Product, String> colName;
+    @FXML
+    private TableColumn<Product, String> colCategory;
+    @FXML
+    private TableColumn<Product, Double> colPrice;
+    @FXML
+    private TableColumn<Product, Double> colCost;
+    @FXML
+    private TableColumn<Product, Integer> colQuantity;
+    @FXML
+    private TableColumn<Product, Integer> colBranch;
+    @FXML
+    private TableColumn<Product, String> colStatus;
 
-    @FXML private TextField searchField;
-    @FXML private TextField nameField;
-    @FXML private TextField categoryField;
-    @FXML private TextField priceField;
-    @FXML private TextField quantityField;  // ✅ Added quantity field
-    @FXML private ComboBox<Branch> branchComboBox;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private TextField nameField;
+    @FXML
+    private TextField categoryField;
+    @FXML
+    private TextField priceField;
+    @FXML
+    private TextField quantityField;
+    @FXML
+    private ComboBox<Branch> branchComboBox;
 
-    @FXML private Label userInfoLabel;
-    @FXML private Button deleteBtn;
+    @FXML
+    private Label userInfoLabel;
+    @FXML
+    private Button deleteBtn;
 
     private final ProductService productService = new ProductService();
     private final BranchService branchService = new BranchService();
@@ -63,29 +81,20 @@ public class ProductController {
     /* ===================== TABLE ===================== */
     private void setupTableColumns() {
 
-        colId.setCellValueFactory(d ->
-                new SimpleIntegerProperty(d.getValue().getProductId()).asObject());
+        colId.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().getProductId()).asObject());
 
-        colName.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getProductName()));
+        colName.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getProductName()));
 
-        colCategory.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getCategory()));
+        colCategory.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getCategory()));
 
-        colPrice.setCellValueFactory(d ->
-                new SimpleDoubleProperty(d.getValue().getPrice()).asObject());
+        colPrice.setCellValueFactory(d -> new SimpleDoubleProperty(d.getValue().getPrice()).asObject());
+        colCost.setCellValueFactory(d -> new SimpleDoubleProperty(d.getValue().getCost()).asObject());
+        colQuantity.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().getQuantity()).asObject());
 
-        colQuantity.setCellValueFactory(d ->
-                new SimpleIntegerProperty(d.getValue().getQuantity()).asObject());
-
-        colBranch.setCellValueFactory(d ->
-                new SimpleIntegerProperty(d.getValue().getBranchId()).asObject());
-        colStatus.setCellValueFactory(cellData ->
-        new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().isDeleted() ? "Deactivated" : "Active"
-        ));
+        colBranch.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().getBranchId()).asObject());
+        colStatus.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
+                cellData.getValue().isDeleted() ? "Deactivated" : "Active"));
     }
-    
 
     /* ===================== BRANCH COMBO ===================== */
     private void setupBranchComboBox() {
@@ -125,8 +134,7 @@ public class ProductController {
 
         if (PermissionManager.isManager()) {
             userInfoLabel.setText(
-                    "⚠️ You can manage products only for Branch ID: " + user.getBranchId()
-            );
+                    "⚠️ You can manage products only for Branch ID: " + user.getBranchId());
             userInfoLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-weight: bold;");
         } else {
             userInfoLabel.setText("✓ Admin - Full Access to All Branches");
@@ -146,8 +154,7 @@ public class ProductController {
                         quantityField.setText(String.valueOf(selected.getQuantity()));
 
                         deleteBtn.setText(
-                                selected.isDeleted() ? "Activate" : "Deactivate"
-                        );
+                                selected.isDeleted() ? "Activate" : "Deactivate");
 
                         if (PermissionManager.isAdmin()) {
                             branchComboBox.getItems().forEach(branch -> {
@@ -157,10 +164,8 @@ public class ProductController {
                             });
                         }
                     }
-                }
-        );
+                });
     }
-
 
     /* ===================== LOAD ===================== */
     @FXML
@@ -168,7 +173,7 @@ public class ProductController {
         try {
             productList.clear();
             productList.addAll(productService.getAllProducts());
-            
+
             productTable.setItems(productList);
         } catch (Exception e) {
             showAlert("Error", "Failed to load products", Alert.AlertType.ERROR);
@@ -200,9 +205,9 @@ public class ProductController {
 
         try {
             if (nameField.getText().isBlank() ||
-                categoryField.getText().isBlank() ||
-                priceField.getText().isBlank() ||
-                quantityField.getText().isBlank()) {  // ✅ Validate quantity
+                    categoryField.getText().isBlank() ||
+                    priceField.getText().isBlank() ||
+                    quantityField.getText().isBlank()) { // ✅ Validate quantity
 
                 showAlert("Validation Error",
                         "Please fill all required fields.",
@@ -230,10 +235,9 @@ public class ProductController {
                     nameField.getText().trim(),
                     categoryField.getText().trim(),
                     Double.parseDouble(priceField.getText().trim()),
-                    0,      // cost
-                    Integer.parseInt(quantityField.getText().trim()),  // ✅ Use quantity from form
-                    branchId
-            );
+                    0, // cost
+                    Integer.parseInt(quantityField.getText().trim()), // ✅ Use quantity from form
+                    branchId);
 
             productService.addProduct(product);
             showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
@@ -262,9 +266,9 @@ public class ProductController {
 
         try {
             if (nameField.getText().isBlank() ||
-                categoryField.getText().isBlank() ||
-                priceField.getText().isBlank() ||
-                quantityField.getText().isBlank()) {  // ✅ Validate quantity
+                    categoryField.getText().isBlank() ||
+                    priceField.getText().isBlank() ||
+                    quantityField.getText().isBlank()) { // ✅ Validate quantity
 
                 showAlert("Validation Error",
                         "Please fill all required fields.",
@@ -301,10 +305,9 @@ public class ProductController {
                     categoryField.getText().trim(),
                     Double.parseDouble(priceField.getText().trim()),
                     selected.getCost(),
-                    Integer.parseInt(quantityField.getText().trim()),  // ✅ Use NEW quantity from form
+                    Integer.parseInt(quantityField.getText().trim()), // ✅ Use NEW quantity from form
                     branchId,
-                    false
-            );
+                    false);
 
             productService.updateProduct(updated);
             showAlert("Success", "Product updated successfully!", Alert.AlertType.INFORMATION);
@@ -328,8 +331,7 @@ public class ProductController {
             showAlert(
                     "Selection Required",
                     "Please select a product",
-                    Alert.AlertType.WARNING
-            );
+                    Alert.AlertType.WARNING);
             return;
         }
 
@@ -340,8 +342,7 @@ public class ProductController {
                 (isDeactivated ? "Activate" : "Deactivate") +
                         " product: " + selected.getProductName() + " ?",
                 ButtonType.OK,
-                ButtonType.CANCEL
-        );
+                ButtonType.CANCEL);
 
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
             return;
@@ -357,8 +358,7 @@ public class ProductController {
                     isDeactivated
                             ? "Product activated successfully!"
                             : "Product deactivated successfully!",
-                    Alert.AlertType.INFORMATION
-            );
+                    Alert.AlertType.INFORMATION);
 
             loadProducts();
             clearFields();
@@ -367,7 +367,6 @@ public class ProductController {
             showAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
-
 
     /* ===================== NAV ===================== */
     @FXML
@@ -380,7 +379,7 @@ public class ProductController {
         nameField.clear();
         categoryField.clear();
         priceField.clear();
-        quantityField.clear();  // ✅ Clear quantity field
+        quantityField.clear(); // ✅ Clear quantity field
         branchComboBox.setValue(null);
         productTable.getSelectionModel().clearSelection();
     }
