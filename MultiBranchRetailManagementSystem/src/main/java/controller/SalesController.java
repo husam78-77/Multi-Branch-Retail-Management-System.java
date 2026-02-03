@@ -5,6 +5,7 @@ import dao.ProductDAO;
 import dao.SaleDAO;
 import dao.SaleDetailDAO;
 import database.DBConnection;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -12,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import model.Customer;
 import model.Product;
 import model.SaleItem;
@@ -48,7 +50,11 @@ public class SalesController {
 
     @FXML
     public void initialize() {
-
+        Platform.runLater(() -> {
+            Stage stage = (Stage) cartTable.getScene().getWindow();
+            stage.setMinHeight(700);  
+            stage.setMinWidth(900);  
+        });
     	int branchId = SessionManager.getCurrentUser().getBranchId();
 
     	productComboBox.setItems(

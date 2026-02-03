@@ -54,22 +54,27 @@
                     </padding>
                     
                     <!-- Table -->
-                    <TableView fx:id="branchReportTable"
-                               style="-fx-background-color: transparent;"
-                               prefHeight="400"
-                               VBox.vgrow="ALWAYS">
+					<TableView fx:id="branchReportTable"
+					           prefHeight="400"
+					           VBox.vgrow="ALWAYS"
+					           style="
+					               -fx-background-color: transparent;
+					               -fx-text-background-color: black;
+					           ">
+
                         
                         <columns>
-                            <TableColumn fx:id="colBranch" 
-                                         text="Branch Name" 
-                                         prefWidth="400"
-                                         style="-fx-alignment: CENTER-LEFT;"/>
-                            <TableColumn fx:id="colTotal" 
-                                         text="Total Sales (RM)" 
-                                         prefWidth="300"
-                                         style="-fx-alignment: CENTER-RIGHT;"/>
+						    <TableColumn fx:id="colBranch"
+						                 text="Branch Name"
+						                 prefWidth="400"
+						                 style="-fx-alignment: CENTER-LEFT; -fx-text-fill: black;"/>
+						
+						    <TableColumn fx:id="colTotal"
+						                 text="Total Sales (RM)"
+						                 prefWidth="300"
+						                 style="-fx-alignment: CENTER-RIGHT; -fx-text-fill: black;"/>
                         </columns>
-                        
+
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                         </columnResizePolicy>

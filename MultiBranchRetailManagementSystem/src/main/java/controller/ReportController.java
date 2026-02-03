@@ -29,7 +29,7 @@ public class ReportController {
         colBranch.setCellValueFactory(new PropertyValueFactory<>("branchName"));
         colTotal.setCellValueFactory(new PropertyValueFactory<>("totalSales"));
 
-        reportData = reportDAO.getSalesPerBranch();
+        reportData = reportDAO.getProfitPerBranch();
         branchReportTable.setItems(FXCollections.observableArrayList(reportData));
     }
 

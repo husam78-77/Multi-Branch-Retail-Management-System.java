@@ -39,7 +39,6 @@ public class ChartController {
     private final ReportDAO reportDAO = new ReportDAO();
     private List<BranchSalesReport> salesData;
 
-    // 🎨 Color palette for different branches
     private final String[] CHART_COLORS = {
         "#3498db",  // Blue
         "#e74c3c",  // Red
@@ -146,7 +145,6 @@ public class ChartController {
                 return;
             }
 
-            // ✅ Create axes with VISIBLE styling
             CategoryAxis xAxis = new CategoryAxis();
             xAxis.setLabel("Branch Name");
             xAxis.setTickLabelFill(javafx.scene.paint.Color.BLACK);
@@ -168,12 +166,10 @@ public class ChartController {
             barChart.setCategoryGap(20);
             barChart.setAnimated(false);
 
-            // Set chart size
             barChart.setPrefWidth(900);
             barChart.setPrefHeight(450);
             barChart.setMinHeight(400);
 
-            // ✅ ONE series with ALL branches
             XYChart.Series<String, Number> series = new XYChart.Series<>();
             series.setName("Sales");
 
@@ -187,12 +183,10 @@ public class ChartController {
 
             barChart.getData().add(series);
 
-            // Clear container and add chart
             chartContainer.getChildren().clear();
             chartContainer.getChildren().add(barChart);
             showEmptyState(false);
 
-            // Apply colors after render
             applyBarChartColors(barChart);
 
         } catch (Exception e) {
@@ -211,7 +205,6 @@ public class ChartController {
                     for (XYChart.Data<String, Number> data : series.getData()) {
                         Node bar = data.getNode();
                         if (bar != null && colorIndex < CHART_COLORS.length) {
-                            // Remove default style classes and apply custom color
                             bar.getStyleClass().removeAll("default-color0", "default-color1", 
                                 "default-color2", "default-color3", "default-color4", 
                                 "default-color5", "default-color6", "default-color7");
@@ -233,24 +226,22 @@ public class ChartController {
                 return;
             }
 
-            // Create pie chart
+            
             PieChart pieChart = new PieChart();
             pieChart.setTitle("Sales Distribution by Branch");
             pieChart.setLabelsVisible(true);
             pieChart.setStartAngle(90);
             pieChart.setAnimated(false);
-            pieChart.setLegendVisible(false); // Hide legend
+            pieChart.setLegendVisible(false); 
 
-            // Set chart size
+            
             pieChart.setPrefWidth(900);
             pieChart.setPrefHeight(450);
 
-            // Calculate total for percentages
             double totalSales = salesData.stream()
                     .mapToDouble(BranchSalesReport::getTotalSales)
                     .sum();
 
-            // Add data with percentages
             for (BranchSalesReport report : salesData) {
                 double percentage = (report.getTotalSales() / totalSales) * 100;
                 
@@ -263,12 +254,10 @@ public class ChartController {
                 pieChart.getData().add(slice);
             }
 
-            // Clear container and add chart
             chartContainer.getChildren().clear();
             chartContainer.getChildren().add(pieChart);
             showEmptyState(false);
 
-            // Apply colors
             applyPieChartColors(pieChart);
 
         } catch (Exception e) {
@@ -345,12 +334,10 @@ public class ChartController {
 
             lineChart.getData().add(series);
 
-            // Clear container and add chart
             chartContainer.getChildren().clear();
             chartContainer.getChildren().add(lineChart);
             showEmptyState(false);
 
-            // Apply colors after render
             applyLineChartColors(lineChart);
 
         } catch (Exception e) {

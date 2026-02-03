@@ -76,5 +76,39 @@ public class ReportDAO {
 	    return list;
 	}
 
+	public List<BranchSalesReport> getProfitPerBranch() {
+
+	    List<BranchSalesReport> list = new ArrayList<>();
+
+	    String sql = """
+	        SELECT 
+	            b.branch_id,
+	            b.branch_name,
+	            SUM((sd.price - p.cost) * sd.quantity) AS total_profit
+	        FROM sale_details sd
+	        JOIN sales s       ON sd.sale_id = s.sale_id
+	        JOIN products p    ON sd.product_id = p.product_id
+	        JOIN branches b    ON s.branch_id = b.branch_id
+	        GROUP BY b.branch_id, b.branch_name
+	    """;
+
+	    try (Connection conn = DBConnection.getConnection();
+	         Statement stmt = conn.createStatement();
+	         ResultSet rs = stmt.executeQuery(sql)) {
+
+	        while (rs.next()) {
+	            list.add(new BranchSalesReport(
+	                rs.getInt("branch_id"),
+	                rs.getString("branch_name"),
+	                rs.getDouble("total_profit")
+	            ));
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return list;
+	}
 
 }
